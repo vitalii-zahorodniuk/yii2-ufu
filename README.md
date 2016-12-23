@@ -20,12 +20,28 @@ selected language
 Installation
 -
 
-1. The preferred way to install this extension is through [composer](http://getcomposer.org/download/), run:
+1.  The preferred way to install this extension is through [composer](http://getcomposer.org/download/), run:
     ```bash
     php composer.phar require --prefer-dist xz1mefx/yii2-hfu "~1.0"
     ```
-2. Previous action also install the [multilanguage extension][link-multilang-extension],
+1.  Previous action also install (if need) the [multilanguage extension][link-multilang-extension],
 so if you did not set it earlier you will need to do it **in the first place**
+
+1.  Execute migration:
+    ```bash
+    php yii migrate --migrationPath=@vendor/xz1mefx/yii2-hfu/migrations --interactive=0
+    ```
+    or you can create new migration and extend it, example:
+    ```php
+    require(Yii::getAlias('@vendor/xz1mefx/yii2-hfu/migrations/m161223_113345_hfu_init.php'));
+
+    /**
+    * Class m161221_135355_hfu_init
+    */
+    class m161221_135355_hfu_init extends m161223_113345_hfu_init
+    {
+    }
+    ```
 
 [ico-version]: https://img.shields.io/github/release/xz1mefx/yii2-hfu.svg
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg
