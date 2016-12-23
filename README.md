@@ -1,9 +1,12 @@
-Human friendly URLs tools package for yii2
-=======================
+Human friendly URLs multilanguage tools package for yii2
+=
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
 [![Total Downloads][ico-downloads]][link-packagist]
+
+**This extension will work only with [multilanguage extension][link-multilang-extension]**
+
 <!--
 The extension is a package of tools to implement multilanguage in Yii2 project:
 - Automatically redirects the user to the URL selected (automatically or manually) language and remembers the user
@@ -13,8 +16,9 @@ selected language
 - Provides a CRUD actions for edit the list of languages and the interface translations
 - Has a widget to create language selector (for adminlte theme)
 -->
+
 Installation
-------------
+-
 
 1. The preferred way to install this extension is through [composer](http://getcomposer.org/download/), run:
     ```bash

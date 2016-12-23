@@ -3,29 +3,47 @@
 namespace xz1mefx\hfu\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%hfu_url}}".
  *
- * @property integer $id
- * @property integer $type
- * @property string $url
- * @property string $cache_md5_full_path
- * @property integer $cache_item_id
- * @property string $cache_items_list
- * @property integer $created_at
- * @property integer $updated_at
+ * @property integer       $id
+ * @property integer       $type
+ * @property string        $url
+ * @property string        $cache_md5_full_path
+ * @property integer       $cache_item_id
+ * @property string        $cache_items_list
+ * @property integer       $created_at
+ * @property integer       $updated_at
  *
  * @property HfuCategory[] $hfuCategories
  */
-class HfuUrl extends \yii\db\ActiveRecord
+class HfuUrl extends ActiveRecord
 {
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return '{{%hfu_url}}';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => time(),
+            ],
+        ];
     }
 
     /**

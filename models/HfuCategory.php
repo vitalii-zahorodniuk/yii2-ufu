@@ -3,21 +3,24 @@
 namespace xz1mefx\hfu\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%hfu_category}}".
  *
- * @property integer $id
- * @property integer $parent_id
- * @property integer $url_id
- * @property integer $created_at
- * @property integer $updated_at
+ * @property integer                $id
+ * @property integer                $parent_id
+ * @property integer                $url_id
+ * @property integer                $created_at
+ * @property integer                $updated_at
  *
- * @property HfuUrl $url
+ * @property HfuUrl                 $url
  * @property HfuCategoryTranslate[] $hfuCategoryTranslates
  */
-class HfuCategory extends \yii\db\ActiveRecord
+class HfuCategory extends ActiveRecord
 {
+
     /**
      * @inheritdoc
      */
@@ -29,12 +32,27 @@ class HfuCategory extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => time(),
+            ],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function rules()
     {
         return [
             [['parent_id', 'url_id', 'created_at', 'updated_at'], 'integer'],
             [['url_id'], 'required'],
-            [['url_id'], 'exist', 'skipOnError' => true, 'targetClass' => HfuUrl::className(), 'targetAttribute' => ['url_id' => 'id']],
+            [['url_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => HfuUrl::className(), 'targetAttribute' => ['url_id' => 'id']],
         ];
     }
 

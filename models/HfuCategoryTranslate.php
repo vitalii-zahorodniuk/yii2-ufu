@@ -3,22 +3,25 @@
 namespace xz1mefx\hfu\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%hfu_category_translate}}".
  *
- * @property integer $id
- * @property integer $category_id
- * @property integer $language_id
- * @property string $name
- * @property integer $created_at
- * @property integer $updated_at
+ * @property integer     $id
+ * @property integer     $category_id
+ * @property integer     $language_id
+ * @property string      $name
+ * @property integer     $created_at
+ * @property integer     $updated_at
  *
- * @property MlLanguage $language
+ * @property MlLanguage  $language
  * @property HfuCategory $category
  */
-class HfuCategoryTranslate extends \yii\db\ActiveRecord
+class HfuCategoryTranslate extends ActiveRecord
 {
+
     /**
      * @inheritdoc
      */
@@ -30,14 +33,29 @@ class HfuCategoryTranslate extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => time(),
+            ],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function rules()
     {
         return [
             [['category_id', 'language_id', 'name'], 'required'],
             [['category_id', 'language_id', 'created_at', 'updated_at'], 'integer'],
             [['name'], 'string', 'max' => 255],
-            [['language_id'], 'exist', 'skipOnError' => true, 'targetClass' => MlLanguage::className(), 'targetAttribute' => ['language_id' => 'id']],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => HfuCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
+            [['language_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => MlLanguage::className(), 'targetAttribute' => ['language_id' => 'id']],
+            [['category_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => HfuCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
 
