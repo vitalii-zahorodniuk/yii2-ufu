@@ -18,7 +18,7 @@
   ],
   "require": {
     "yiisoft/yii2": "~2.0",
-    "xz1mefx/yii2-multilang": "~1.1"
+    "xz1mefx/yii2-multilang": "dev-master"
   },
   "autoload": {
     "psr-4": {
