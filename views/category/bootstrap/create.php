@@ -1,15 +1,14 @@
 <?php
-
-use yii\helpers\Html;
-
+use yii\bootstrap\Html;
 
 /* @var $this yii\web\View */
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 
-$this->title = Yii::t('ufu', 'Create Ufu Category');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu', 'Ufu Categories'), 'url' => ['index']];
+$this->title = Yii::t('ufu-tools', 'Create Ufu Category');
+$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Ufu Categories'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+
 <div class="ufu-category-create">
 
     <h1><?= Html::encode($this->title) ?></h1>

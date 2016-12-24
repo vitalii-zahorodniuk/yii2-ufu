@@ -1,17 +1,18 @@
 <?php
-
-use yii\helpers\Html;
+use yii\bootstrap\Html;
 
 /* @var $this yii\web\View */
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 
-$this->title = Yii::t('ufu', 'Update {modelClass}: ', [
+$this->title = Yii::t('ufu-tools', 'Update {modelClass}: ', [
         'modelClass' => 'Ufu Category',
     ]) . $model->id;
-$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu', 'Ufu Categories'), 'url' => ['index']];
+
+$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Ufu Categories'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = Yii::t('ufu', 'Update');
+$this->params['breadcrumbs'][] = Yii::t('ufu-tools', 'Update');
 ?>
+
 <div class="ufu-category-update">
 
     <h1><?= Html::encode($this->title) ?></h1>

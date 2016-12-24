@@ -33,14 +33,14 @@ class CreateAction extends BaseAction
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', Yii::t('ufu-tools', 'Category created successfully!'));
             return $this->controller->redirect(['index']);
-        } else {
-            return $this->controller->render(
-                $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/create",
-                [
-                    'model' => $model,
-                ]
-            );
         }
+
+        return $this->controller->render(
+            $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/create",
+            [
+                'model' => $model,
+            ]
+        );
     }
 
 }

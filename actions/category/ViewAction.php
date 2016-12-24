@@ -4,20 +4,21 @@ namespace xz1mefx\ufu\actions\category;
 use xz1mefx\ufu\actions\BaseAction;
 use xz1mefx\ufu\models\UfuCategory;
 use Yii;
-use yii\bootstrap\ActiveForm;
 use yii\web\NotFoundHttpException;
-use yii\web\Response;
 
 /**
- * Class UpdateAction
+ * Class ViewAction
  *
  * @property string $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
  * @property string $view  the view name (if need to override)
  *
  * @package xz1mefx\ufu\actions\category
  */
-class UpdateAction extends BaseAction
+class ViewAction extends BaseAction
 {
+
+    public $canUpdate = TRUE;
+    public $canDelete = TRUE;
 
     /**
      * @param $id
@@ -31,20 +32,13 @@ class UpdateAction extends BaseAction
             throw new NotFoundHttpException(Yii::t('ufu-tools', 'The requested category does not exist'));
         }
 
-        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', Yii::t('ufu-tools', 'Category updated successfully!'));
-            return $this->controller->redirect(['index']);
-        }
-
         return $this->controller->render(
-            $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/update",
+            $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/view",
             [
                 'model' => $model,
+
+                'canUpdate' => $this->canUpdate,
+                'canDelete' => $this->canDelete,
             ]
         );
     }
