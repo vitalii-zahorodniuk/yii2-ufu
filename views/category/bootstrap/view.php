@@ -8,7 +8,7 @@ use yii\widgets\DetailView;
 /* @var $canDelete bool */
 
 $this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Ufu Categories'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Categories'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 

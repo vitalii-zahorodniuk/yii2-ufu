@@ -5,10 +5,10 @@ use yii\bootstrap\Html;
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 
 $this->title = Yii::t('ufu-tools', 'Update {modelClass}: ', [
-        'modelClass' => 'Ufu Category',
+        'modelClass' => 'Category',
     ]) . $model->id;
 
-$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Ufu Categories'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Categories'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = Yii::t('ufu-tools', 'Update');
 ?>
