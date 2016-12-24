@@ -3,9 +3,9 @@ use xz1mefx\multilang\models\Language;
 use yii\db\Migration;
 
 /**
- * Class m161223_113345_hfu_init
+ * Class m161223_113345_ufu_init
  */
-class m161223_113345_hfu_init extends Migration
+class m161223_113345_ufu_init extends Migration
 {
 
     /**
@@ -26,15 +26,13 @@ class m161223_113345_hfu_init extends Migration
         // Create url table
         // -------------------------------------------
 
-        $this->createTable('{{%hfu_url}}', [
+        $this->createTable('{{%ufu_url}}', [
             'id' => $this->primaryKey()->unsigned(),
-            'type' => $this->smallInteger()->unsigned()->notNull()->defaultValue(0),
+            'type' => $this->smallInteger()->unsigned()->notNull(),
+            'item_id' => $this->integer()->unsigned()->notNull(),
 
             'url' => $this->string()->notNull(),
-
-            'cache_md5_full_path' => $this->string(32)->null()->comment('md5 encrypted full path'),
-            'cache_item_id' => $this->integer()->unsigned()->null()->comment('Right item (last segment) id'),
-            'cache_items_list' => $this->string()->null()->comment('List of all path ids'),
+            'full_path_hash' => $this->string(32)->null(),
 
             'created_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),
             'updated_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),
@@ -45,7 +43,7 @@ class m161223_113345_hfu_init extends Migration
         // Create category tables
         // -------------------------------------------
 
-        $this->createTable('{{%hfu_category}}', [
+        $this->createTable('{{%ufu_category}}', [
             'id' => $this->primaryKey()->unsigned(),
             'parent_id' => $this->integer()->unsigned()->notNull()->defaultValue(0),
             'url_id' => $this->integer()->unsigned()->notNull(),
@@ -54,10 +52,10 @@ class m161223_113345_hfu_init extends Migration
             'updated_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),
         ], $tableOptions);
 
-        $this->createIndex('hfu_category_url_id', '{{%hfu_category}}', 'url_id');
-        $this->addForeignKey('hfu_category_url_id_fk', '{{%hfu_category}}', 'url_id', '{{%hfu_url}}', 'id', 'RESTRICT', 'RESTRICT');
+        $this->createIndex('ufu_category_url_id', '{{%ufu_category}}', 'url_id');
+        $this->addForeignKey('ufu_category_url_id_fk', '{{%ufu_category}}', 'url_id', '{{%ufu_url}}', 'id', 'RESTRICT', 'RESTRICT');
 
-        $this->createTable('{{%hfu_category_translate}}', [
+        $this->createTable('{{%ufu_category_translate}}', [
             'id' => $this->primaryKey()->unsigned(),
             'category_id' => $this->integer()->unsigned()->notNull(),
             'language_id' => $this->integer()->unsigned()->notNull(),
@@ -68,10 +66,10 @@ class m161223_113345_hfu_init extends Migration
             'updated_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),
         ], $tableOptions);
 
-        $this->createIndex('hfu_category_translate_category_id', '{{%hfu_category_translate}}', 'category_id');
-        $this->createIndex('hfu_category_translate_language_id', '{{%hfu_category_translate}}', 'language_id');
-        $this->addForeignKey('hfu_category_translate_category_id_fk', '{{%hfu_category_translate}}', 'category_id', '{{%hfu_category}}', 'id', 'RESTRICT', 'RESTRICT');
-        $this->addForeignKey('hfu_category_translate_language_id_fk', '{{%hfu_category_translate}}', 'language_id', Language::TABLE_NAME, 'id', 'RESTRICT', 'RESTRICT');
+        $this->createIndex('ufu_category_translate_category_id', '{{%ufu_category_translate}}', 'category_id');
+        $this->createIndex('ufu_category_translate_language_id', '{{%ufu_category_translate}}', 'language_id');
+        $this->addForeignKey('ufu_category_translate_category_id_fk', '{{%ufu_category_translate}}', 'category_id', '{{%ufu_category}}', 'id', 'RESTRICT', 'RESTRICT');
+        $this->addForeignKey('ufu_category_translate_language_id_fk', '{{%ufu_category_translate}}', 'language_id', Language::TABLE_NAME, 'id', 'RESTRICT', 'RESTRICT');
     }
 
     /**
@@ -79,14 +77,14 @@ class m161223_113345_hfu_init extends Migration
      */
     public function down()
     {
-        if (Yii::$app->db->schema->getTableSchema('{{%hfu_category_translate}}') !== NULL) {
-            $this->dropTable('{{%hfu_category_translate}}');
+        if (Yii::$app->db->schema->getTableSchema('{{%ufu_category_translate}}') !== NULL) {
+            $this->dropTable('{{%ufu_category_translate}}');
         }
-        if (Yii::$app->db->schema->getTableSchema('{{%hfu_category}}') !== NULL) {
-            $this->dropTable('{{%hfu_category}}');
+        if (Yii::$app->db->schema->getTableSchema('{{%ufu_category}}') !== NULL) {
+            $this->dropTable('{{%ufu_category}}');
         }
-        if (Yii::$app->db->schema->getTableSchema('{{%hfu_url}}') !== NULL) {
-            $this->dropTable('{{%hfu_url}}');
+        if (Yii::$app->db->schema->getTableSchema('{{%ufu_url}}') !== NULL) {
+            $this->dropTable('{{%ufu_url}}');
         }
     }
 

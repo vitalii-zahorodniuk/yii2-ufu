@@ -1,11 +1,11 @@
 {
-  "name": "xz1mefx/yii2-hfu",
-  "description": "Human friendly URLs tools package",
+  "name": "xz1mefx/yii2-ufu",
+  "description": "User friendly URLs tools package",
   "type": "yii2-extension",
   "keywords": [
     "yii2",
     "url",
-    "human-friendly",
+    "user friendly",
     "language",
     "xZ1mEFx"
   ],
@@ -22,7 +22,7 @@
   },
   "autoload": {
     "psr-4": {
-      "xz1mefx\\hfu\\": ""
+      "xz1mefx\\ufu\\": ""
     }
   }
 }

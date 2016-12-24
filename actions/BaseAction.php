@@ -1,11 +1,11 @@
 <?php
-namespace xz1mefx\hfu\actions;
+namespace xz1mefx\ufu\actions;
 
 use yii\base\Action;
 
 /**
  * Class BaseAction
- * @package xz1mefx\hfu\actions
+ * @package xz1mefx\ufu\actions
  */
 class BaseAction extends Action
 {
