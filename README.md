@@ -24,6 +24,7 @@ Installation
     ```bash
     php composer.phar require --prefer-dist xz1mefx/yii2-hfu "~1.0"
     ```
+    
 1.  Previous action also install (if need) the [multilanguage extension][link-multilang-extension],
 so if you did not set it earlier you will need to do it **in the first place**
 
