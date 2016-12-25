@@ -33,6 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'parent_id',
+            'ufuCategoryTranslate.name',
 
             [
                 'class' => ActionColumn::className(),

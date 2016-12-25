@@ -18,6 +18,7 @@ use yii\db\ActiveRecord;
  *
  * @property UfuCategoryRelation[]  $ufuCategoryRelations
  * @property UfuCategoryTranslate[] $ufuCategoryTranslates
+ * @property UfuCategoryTranslate   $ufuCategoryTranslate
  * @property MlLanguage[]           $languages
  */
 class UfuCategory extends ActiveRecord
@@ -78,6 +79,14 @@ class UfuCategory extends ActiveRecord
     public function getUfuCategoryRelations()
     {
         return $this->hasMany(UfuCategoryRelation::className(), ['category_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUfuCategoryTranslate()
+    {
+        return $this->hasOne(UfuCategoryTranslate::className(), ['category_id' => 'id'])->where(['language_id' => Yii::$app->lang->id]);
     }
 
     /**

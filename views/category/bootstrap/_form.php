@@ -12,6 +12,7 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, 'parent_id')->textInput() ?>
+    <?= $form->field($model->ufuCategoryTranslate, 'name')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton(

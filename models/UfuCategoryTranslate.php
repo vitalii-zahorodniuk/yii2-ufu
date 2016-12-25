@@ -2,6 +2,7 @@
 
 namespace xz1mefx\ufu\models;
 
+use xz1mefx\multilang\models\Language;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
@@ -55,7 +56,7 @@ class UfuCategoryTranslate extends ActiveRecord
             [['category_id', 'language_id', 'created_at', 'updated_at'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['category_id', 'language_id'], 'unique', 'targetAttribute' => ['category_id', 'language_id'], 'message' => 'The combination of Category ID and Language ID has already been taken.'],
-            [['language_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => MlLanguage::className(), 'targetAttribute' => ['language_id' => 'id']],
+            [['language_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => Language::className(), 'targetAttribute' => ['language_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => UfuCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
