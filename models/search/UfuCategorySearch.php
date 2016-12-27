@@ -19,7 +19,7 @@ class UfuCategorySearch extends UfuCategory
     {
         return [
             [['id', 'parent_id', 'created_at', 'updated_at'], 'integer'],
-            [['parents_list', 'childrens_list'], 'safe'],
+            [['parents_list', 'children_list'], 'safe'],
         ];
     }
 
@@ -66,7 +66,7 @@ class UfuCategorySearch extends UfuCategory
         ]);
 
         $query->andFilterWhere(['like', 'parents_list', $this->parents_list])
-            ->andFilterWhere(['like', 'childrens_list', $this->childrens_list]);
+            ->andFilterWhere(['like', 'children_list', $this->children_list]);
 
         return $dataProvider;
     }

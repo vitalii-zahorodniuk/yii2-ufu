@@ -53,7 +53,7 @@ class m161223_113345_ufu_init extends Migration
             'id' => $this->primaryKey()->unsigned(),
             'parent_id' => $this->integer()->unsigned()->notNull()->defaultValue(0),
             'parents_list' => $this->text()->null(),
-            'childrens_list' => $this->text()->null(),
+            'children_list' => $this->text()->null(),
 
             'created_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),
             'updated_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),

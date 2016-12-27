@@ -17,7 +17,8 @@
     }
   ],
   "require": {
-    "xz1mefx/yii2-multilang": "@dev"
+    "xz1mefx/yii2-multilang": "@dev",
+    "xz1mefx/yii2-widgets": "*"
   },
   "autoload": {
     "psr-4": {
