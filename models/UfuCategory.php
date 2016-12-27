@@ -25,15 +25,14 @@ use yii\helpers\ArrayHelper;
 class UfuCategory extends ActiveRecord
 {
 
-    private static $_categoriesDataList;
-    private static $_categoriesDataTree;
+    private static $_bootstrapTreeViewData;
 
     /**
-     * Init variables
+     * @return array Bootstrap tree view widget data
      */
-    public static function tryInitMainStaticVars()
+    public static function getBTVWidgetData()
     {
-        if (!isset(self::$_categoriesDataList, self::$_categoriesDataTree)) {
+        if (!isset(self::$_bootstrapTreeViewData)) {
             $preparedData = ArrayHelper::map(
                 self::find()
                     ->joinWith('ufuCategoryTranslate')
@@ -50,42 +49,42 @@ class UfuCategory extends ActiveRecord
                     return [
                         'id' => (int)$element['id'],
                         'parent_id' => (int)$element['parent_id'],
-                        'name' => (string)$element['name'],
+                        'text' => (string)$element['name'],
                     ];
                 },
                 'parent_id'
             );
-            self::$_categoriesDataTree = self::constructTreeRecursive($preparedData, self::$_categoriesDataList);
+            self::$_bootstrapTreeViewData = self::constructBTVRecursive($preparedData);
             unset($preparedData);
         }
+        return self::$_bootstrapTreeViewData;
     }
 
     /**
      * @param array $data
-     * @param array $resCategoriesList
      * @param int   $parent_id
      * @param array $parentsList
      *
      * @return array
      */
-    private static function constructTreeRecursive(&$data, &$resCategoriesList, $parent_id = 0, $parentsList = [])
+    private static function constructBTVRecursive(&$data, $parent_id = 0, $parentsList = [])
     {
         $res = [];
         if (isset($data[$parent_id])) {
             foreach ($data[$parent_id] as $category) {
                 $preparedParentsList = $parentsList;
                 $preparedParentsList[] = $category['parent_id'];
-                $resCategoriesList[$category['id']] = [
-                    'id' => $category['id'],
-                    'parent_id' => $category['parent_id'],
-                    'parents_list' => $preparedParentsList,
-                    'name' => isset($category['name']) ? $category['name'] : '',
+                $tmp = [
+                    'item-id' => $category['id'],
+                    'text' => isset($category['name']) ? $category['name'] : '',
+                    'nodes' => self::constructBTVRecursive($data, $category['id'], $preparedParentsList),
                 ];
-                $res[$category['id']] = $resCategoriesList[$category['id']];
-                $res[$category['id']]['childs'] = self::constructTreeRecursive($data, $resCategoriesList, $category['id'], $preparedParentsList);
+                if (empty($tmp['nodes'])) {
+                    unset($tmp['nodes']);
+                }
+                $res[] = $tmp;
             }
         }
-
         return $res;
     }
 
