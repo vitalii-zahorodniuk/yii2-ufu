@@ -44,6 +44,19 @@ so if you did not set it earlier you will need to do it **in the first place**
     }
     ```
 
+1.  Add ufu-component in main config file:
+    ```php
+    'ufu' => [
+        'class' => \xz1mefx\ufu\components\UFU::className(),
+    ],
+    ```
+
+1.  [*not necessary*] If you use [`iiifx-production/yii2-autocomplete-helper`][link-autocomplete-extension] you need to run:
+    ```bash
+    composer autocomplete
+    ```
+
+
 [ico-version]: https://img.shields.io/github/release/xz1mefx/yii2-ufu.svg
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg
 [ico-downloads]: https://img.shields.io/packagist/dt/xz1mefx/yii2-ufu.svg

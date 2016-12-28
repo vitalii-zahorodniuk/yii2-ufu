@@ -5,7 +5,6 @@ namespace xz1mefx\ufu\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%ufu_category}}".
@@ -24,69 +23,6 @@ use yii\helpers\ArrayHelper;
  */
 class UfuCategory extends ActiveRecord
 {
-
-    private static $_bootstrapTreeViewData;
-
-    /**
-     * @return array Bootstrap tree view widget data
-     */
-    public static function getBTVWidgetData()
-    {
-        if (!isset(self::$_bootstrapTreeViewData)) {
-            $preparedData = ArrayHelper::map(
-                self::find()
-                    ->joinWith('ufuCategoryTranslate')
-                    ->select([
-                        'ufu_category.id',
-                        'ufu_category.parent_id',
-                        'ufu_category_translate.name',
-                    ])
-                    ->asArray()
-                    ->all(),
-                'id',
-                function ($element) {
-                    /* @var self $element */
-                    return [
-                        'id' => (int)$element['id'],
-                        'parent_id' => (int)$element['parent_id'],
-                        'text' => (string)$element['name'],
-                    ];
-                },
-                'parent_id'
-            );
-            self::$_bootstrapTreeViewData = self::constructBTVRecursive($preparedData);
-            unset($preparedData);
-        }
-        return self::$_bootstrapTreeViewData;
-    }
-
-    /**
-     * @param array $data
-     * @param int   $parent_id
-     * @param array $parentsList
-     *
-     * @return array
-     */
-    private static function constructBTVRecursive(&$data, $parent_id = 0, $parentsList = [])
-    {
-        $res = [];
-        if (isset($data[$parent_id])) {
-            foreach ($data[$parent_id] as $category) {
-                $preparedParentsList = $parentsList;
-                $preparedParentsList[] = $category['parent_id'];
-                $tmp = [
-                    'item-id' => $category['id'],
-                    'text' => isset($category['name']) ? $category['name'] : '',
-                    'nodes' => self::constructBTVRecursive($data, $category['id'], $preparedParentsList),
-                ];
-                if (empty($tmp['nodes'])) {
-                    unset($tmp['nodes']);
-                }
-                $res[] = $tmp;
-            }
-        }
-        return $res;
-    }
 
     /**
      * @inheritdoc

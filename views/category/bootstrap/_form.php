@@ -1,6 +1,5 @@
 <?php
-use xz1mefx\ufu\models\UfuCategory;
-use xz1mefx\widgets\BootstrapTreeViewInputWidget;
+use xz1mefx\ufu\widgets\CategoryTreeWidget;
 use yii\bootstrap\Html;
 use yii\widgets\ActiveForm;
 
@@ -13,13 +12,11 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'parent_id')->widget(
-        BootstrapTreeViewInputWidget::className(),
-        [
-            'pluginOptions' => [],
-            'pluginData' => UfuCategory::getBTVWidgetData(),
-        ]
-    ) ?>
+    <?= CategoryTreeWidget::widget([
+        'multiselect' => FALSE,
+        'name' => 'parent_id',
+//        'selectedItem' => [5, 4, 1024, 2500],
+    ]) ?>
 
     <div class="form-group">
         <?= Html::submitButton(
