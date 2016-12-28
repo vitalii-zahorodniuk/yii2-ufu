@@ -23,6 +23,11 @@ class CategoryTreeWidget extends Widget
     public $multiselect = FALSE;
 
     /**
+     * @var UfuCategory
+     */
+    public $model = NULL;
+
+    /**
      * @var string
      */
     public $name = NULL;
@@ -42,6 +47,8 @@ class CategoryTreeWidget extends Widget
      */
     private $_treeWidgetCacheKey;
 
+    private $_name;
+
     private $_selectedItemsJson = NULL;
 
     /**
@@ -49,15 +56,20 @@ class CategoryTreeWidget extends Widget
      */
     public function run()
     {
+        if (!isset($this->model) || !$this->model instanceof UfuCategory) {
+            throw new InvalidValueException("Incorrect model!");
+        }
         if (empty($this->name) || !is_string($this->name)) {
             throw new InvalidValueException("Incorrect name value!");
         }
 
         $this->_treeWidgetCacheKey = [
             Yii::$app->language,
-            CategoryTreeWidget::className(),
+            __CLASS__,
             $this->multiselect,
         ];
+
+        $this->_name = Html::getInputName($this->model, 'parent_id');
 
         $this->_selectedItemsJson = Json::encode(empty($this->selectedItem) ? [] : (is_array($this->selectedItem) ? $this->selectedItem : [$this->selectedItem]));
 
@@ -73,7 +85,7 @@ class CategoryTreeWidget extends Widget
     {
         $widgetId = 'ufu-ctree-' . self::$counter;
 
-        $content = "<div id=\"$widgetId\" class=\"panel panel-default panel-body ufu-ctree\">\n";
+        $content = "<div id=\"$widgetId\" class=\"panel panel-default panel-body ufu-ctree\">\n"; // widget is hidden by default
 
         $widgetContent = Yii::$app->multilangCache->get($this->_treeWidgetCacheKey);
         if ($widgetContent === FALSE) {
@@ -81,7 +93,7 @@ class CategoryTreeWidget extends Widget
             Yii::$app->multilangCache->set($this->_treeWidgetCacheKey, $widgetContent);
         }
 
-        $content .= $widgetContent;
+        $content .= $widgetContent ?: ('<i class="text-center" style="display: block;">' . Yii::t('ufu-tools', 'there are no categories yet') . '</i>');
         $content .= '</div>';
 
         $this->view->registerJs(<<<JS
@@ -96,6 +108,11 @@ class CategoryTreeWidget extends Widget
             $(this).parent().find('> span.glyphicon-chevron-down').show();
         });
 });
+
+var itemToRemove = $('li[ufu-ctree-cid="{$this->model->id}"]').parent();
+itemToRemove.parent().find('> span.glyphicon').hide();
+itemToRemove.parent().find('> span.ufu-ctree-nochevron').show();
+itemToRemove.remove();
 JS
         );
 
@@ -148,16 +165,13 @@ JS
 
                 $items .= "<li ufu-ctree-cid=\"{$category['id']}\">\n";
                 $childItems = $this->_renderItemsRecursive($data, $category['id'], $preparedParentsList);
-                if (empty($childItems)) {
-                    $items .= "<span class=\"ufu-ctree-nochevron\"></span>";
-                } else {
-                    $items .= "<span class=\"glyphicon glyphicon-chevron-right\"></span>";
-                    $items .= "<span class=\"glyphicon glyphicon-chevron-down\"></span>";
-                }
+                $items .= "<span class=\"ufu-ctree-nochevron\" style=\"display: " . (empty($childItems) ? 'inline' : 'none') . ";\"></span>";
+                $items .= "<span class=\"glyphicon glyphicon-chevron-right\" style=\"display: " . (empty($childItems) ? 'none' : 'inline') . ";\"></span>";
+                $items .= "<span class=\"glyphicon glyphicon-chevron-down\"></span>"; // it's hidden by default in css
                 if ($this->multiselect) {
-                    $items .= Html::checkbox($this->name, FALSE, ['value' => $category['id']]);
+                    $items .= Html::checkbox($this->_name, FALSE, ['value' => $category['id']]);
                 } else {
-                    $items .= Html::radio($this->name, FALSE, ['value' => $category['id']]);
+                    $items .= Html::radio($this->_name, FALSE, ['value' => $category['id']]);
                 }
                 $items .= "\n";
                 $items .= '<span class="ufu-ctree-item-label">' . (empty($category['name']) ? $this->emptyItemText : $category['name']) . "</span>\n";

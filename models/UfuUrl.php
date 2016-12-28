@@ -11,7 +11,7 @@ use yii\db\ActiveRecord;
  *
  * @property integer $id
  * @property integer $is_first_segment
- * @property integer $type
+ * @property integer $model
  * @property integer $item_id
  * @property string  $url
  * @property string  $full_path_hash
@@ -50,9 +50,9 @@ class UfuUrl extends ActiveRecord
     public function rules()
     {
         return [
-            [['is_first_segment', 'type', 'item_id', 'created_at', 'updated_at'], 'integer'],
-            [['type', 'item_id', 'url'], 'required'],
-            [['url'], 'string', 'max' => 255],
+            [['is_first_segment', 'item_id', 'created_at', 'updated_at'], 'integer'],
+            [['model', 'item_id', 'url'], 'required'],
+            [['model', 'url'], 'string', 'max' => 255],
             [['full_path_hash'], 'string', 'max' => 32],
             [['item_id'], 'unique'],
             [['full_path_hash'], 'unique'],
@@ -67,7 +67,7 @@ class UfuUrl extends ActiveRecord
         return [
             'id' => Yii::t('ufu-tools', 'ID'),
             'is_first_segment' => Yii::t('ufu-tools', 'Is First Segment'),
-            'type' => Yii::t('ufu-tools', 'Type'),
+            'model' => Yii::t('ufu-tools', 'Model'),
             'item_id' => Yii::t('ufu-tools', 'Item ID'),
             'url' => Yii::t('ufu-tools', 'Url'),
             'full_path_hash' => Yii::t('ufu-tools', 'Full Path Hash'),

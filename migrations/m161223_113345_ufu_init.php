@@ -29,7 +29,7 @@ class m161223_113345_ufu_init extends Migration
         $this->createTable('{{%ufu_url}}', [
             'id' => $this->primaryKey()->unsigned(),
             'is_first_segment' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(1),
-            'type' => $this->smallInteger()->unsigned()->notNull(),
+            'model' => $this->string()->notNull(),
             'item_id' => $this->integer()->unsigned()->notNull(),
 
             'url' => $this->string()->notNull(),
@@ -40,7 +40,7 @@ class m161223_113345_ufu_init extends Migration
         ], $tableOptions);
 
         $this->createIndex('ufu_url_is_first_segment', '{{%ufu_url}}', 'is_first_segment');
-        $this->createIndex('ufu_url_type', '{{%ufu_url}}', 'type');
+        $this->createIndex('ufu_url_model', '{{%ufu_url}}', 'model');
         $this->createIndex('ufu_url_item_id', '{{%ufu_url}}', 'item_id');
         $this->createIndex('ufu_url_full_path_hash', '{{%ufu_url}}', 'item_id', TRUE);
 
@@ -52,6 +52,7 @@ class m161223_113345_ufu_init extends Migration
         $this->createTable('{{%ufu_category}}', [
             'id' => $this->primaryKey()->unsigned(),
             'parent_id' => $this->integer()->unsigned()->notNull()->defaultValue(0),
+            'type' => $this->smallInteger()->unsigned()->notNull(),
             'parents_list' => $this->text()->null(),
             'children_list' => $this->text()->null(),
 
@@ -60,6 +61,7 @@ class m161223_113345_ufu_init extends Migration
         ], $tableOptions);
 
         $this->createIndex('ufu_category_parent_id', '{{%ufu_category}}', 'parent_id');
+        $this->createIndex('ufu_category_type', '{{%ufu_category}}', 'type');
 
         $this->createTable('{{%ufu_category_translate}}', [
             'id' => $this->primaryKey()->unsigned(),
