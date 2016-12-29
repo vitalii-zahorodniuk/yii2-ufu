@@ -4,6 +4,7 @@ namespace xz1mefx\ufu\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%ufu_category}}".
@@ -23,6 +24,7 @@ use yii\db\ActiveRecord;
  *
  * @property integer                $is_parent
  * @property string                 $url
+ * @property string                 $type
  * @property UfuCategoryRelation[]  $ufuCategoryRelations
  * @property UfuCategoryTranslate[] $ufuCategoryTranslates
  * @property MlLanguage[]           $languages
@@ -35,23 +37,35 @@ class UfuCategory extends ActiveRecord
     const TABLE_ALIAS_PARENT_UFU_CATEGORY = 'puc';
     const TABLE_ALIAS_UFU_CATEGORY_TRANSLATE = 'uct';
     const TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE = 'puct';
+    const TABLE_ALIAS_UFU_URL = 'uu';
 
     public $is_parent;
 
     private $_url;
+    private $_type;
 
     /**
      * @return array
      */
     public static function collectItemsTree()
     {
+//        die(self::find()
+//            ->joinWith(['ufuCategoryTranslate', 'ufuUrl'])
+//            ->select([
+//                self::tableName() . '.id',
+//                self::tableName() . '.parent_id',
+//                self::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name',
+//                self::TABLE_ALIAS_UFU_URL . '.type',
+//            ])
+//            ->asArray()->createCommand()->rawSql);
         $preparedData = ArrayHelper::map(
-            UfuCategory::find()
-                ->joinWith('ufuCategoryTranslate')
+            self::find()
+                ->joinWith(['ufuCategoryTranslate', 'ufuUrl'])
                 ->select([
-                    'ufu_category.id',
-                    'ufu_category.parent_id',
-                    'ufu_category_translate.name',
+                    self::tableName() . '.id',
+                    self::tableName() . '.parent_id',
+                    self::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name',
+                    self::TABLE_ALIAS_UFU_URL . '.type',
                 ])
                 ->asArray()
                 ->all(),
@@ -62,6 +76,7 @@ class UfuCategory extends ActiveRecord
                     'id' => (int)$element['id'],
                     'parent_id' => (int)$element['parent_id'],
                     'name' => (string)$element['name'],
+                    'type' => (int)$element['type'],
                 ];
             },
             'parent_id'
@@ -81,7 +96,7 @@ class UfuCategory extends ActiveRecord
         $res = [];
         if (isset($data[$parent_id])) {
             foreach ($data[$parent_id] as $category) {
-                $preparedParentsIdsList = $parentsIdsList;
+                $preparedParentsIdsList = $parentsList;
                 $preparedParentsIdsList[] = $category['parent_id'];
 
                 $resCategoriesList[$category['id']] = [
@@ -89,6 +104,7 @@ class UfuCategory extends ActiveRecord
                     'parent_id' => $category['parent_id'],
                     'parents_id_list' => $preparedParentsIdsList,
                     'name' => $category['name'],
+                    'type' => $category['type'],
                 ];
                 $res[$category['id']] = $resCategoriesList[$category['id']];
                 $res[$category['id']]['childs'] = self::_collectItemsTreeRecursive($data, $category['id'], $preparedParentsIdsList);
@@ -149,6 +165,7 @@ class UfuCategory extends ActiveRecord
         }
         $url->item_id = $this->id;
         $url->url = $this->url;
+        $url->type = $this->type;
         $url->save();
 
         Yii::$app->multilangCache->flush(); // TODO: make correct clearing in future
@@ -185,8 +202,10 @@ class UfuCategory extends ActiveRecord
             ['children_list', 'string'],
             // created-updated timestamps
             [['created_at', 'updated_at'], 'integer'],
-            // virtual fields
+            // virtual url field
             [['url'], 'safe'],
+            // virtual is_parent field
+            [['is_parent'], 'safe'],
         ];
     }
 
@@ -226,6 +245,28 @@ class UfuCategory extends ActiveRecord
     public function setUrl($value)
     {
         $this->_url = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        if (isset($this->_type)) {
+            return $this->_type;
+        }
+        if ($this->ufuUrl) {
+            return $this->_type = $this->ufuUrl->type;
+        }
+        return $this->_type = '';
+    }
+
+    /**
+     * @param $value
+     */
+    public function setType($value)
+    {
+        $this->_type = $value;
     }
 
     /**
@@ -279,7 +320,8 @@ class UfuCategory extends ActiveRecord
      */
     public function getUfuUrl()
     {
-        return $this->hasOne(UfuUrl::className(), ['item_id' => 'id']);
+        return $this->hasOne(UfuUrl::className(), ['item_id' => 'id'])
+            ->from([self::TABLE_ALIAS_UFU_URL => UfuUrl::tableName()]);
     }
 
     /**
@@ -288,7 +330,7 @@ class UfuCategory extends ActiveRecord
     public function getParent()
     {
         return $this
-            ->hasOne(UfuCategory::className(), ['id' => 'parent_id'])
+            ->hasOne(self::className(), ['id' => 'parent_id'])
             ->from([self::TABLE_ALIAS_PARENT_UFU_CATEGORY => self::tableName()]);
     }
 

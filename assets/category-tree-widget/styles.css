@@ -1,41 +1,46 @@
-.ufu-ctree ul {
+.ctreeview {
+    overflow: auto;
+}
+
+.ctreeview ul {
     padding: 0 0 0 30px;
     margin: 0;
 }
 
-.ufu-ctree > ul {
+.ctreeview > ul {
     padding-left: 0;
 }
 
-.ufu-ctree > ul li span.glyphicon {
+.ctreeview > ul li span.glyphicon {
     cursor: pointer;
 }
 
-.ufu-ctree > ul li {
+.ctreeview > ul li {
     list-style-type: none;
     padding-top: 5px;
 }
 
-.ufu-ctree > ul > li:first-child {
+.ctreeview > ul > li:first-child {
     padding-top: 0;
 }
 
-/*.ufu-ctree > ul li:hover {*/
+/*.ctreeview > ul li:hover {*/
 /*background-color: rgba(0, 0, 0, 0.025);*/
 /*}*/
 
-.ufu-ctree .ufu-ctree-nochevron {
+.ctreeview .ctreeview-nochevron {
     margin-right: 19px;
 }
 
-.ufu-ctree > ul .glyphicon {
+.ctreeview > ul .glyphicon {
     margin-right: 5px;
 }
 
-.ufu-ctree > ul .glyphicon-chevron-down,
-.ufu-ctree .ufu-ctree-child {
+.ctreeview > ul .glyphicon-chevron-down,
+.ctreeview .ctreeview-child {
     display: none;
 }
 
-.ufu-ctree .ufu-ctree-item-label {
+.ctreeview .ctreeview-item-label {
+    margin-left: 5px;
 }

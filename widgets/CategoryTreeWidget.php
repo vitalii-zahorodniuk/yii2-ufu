@@ -83,6 +83,16 @@ class CategoryTreeWidget extends Widget
      */
     public function renderWidget()
     {
+
+        $data = Json::encode(UfuCategory::collectItemsTree());
+        $this->view->registerJs(<<<JS
+$('#ctree').categoryTreeView({
+    data: {$data}
+});
+JS
+        );
+        return '<div id="ctree"></div>';
+
         $widgetId = 'ufu-ctree-' . self::$counter;
 
         $content = "<div id=\"$widgetId\" class=\"panel panel-default panel-body ufu-ctree\">\n"; // widget is hidden by default
