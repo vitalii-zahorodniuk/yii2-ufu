@@ -2,6 +2,7 @@
 use yii\bootstrap\Html;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\grid\SerialColumn;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -29,11 +30,11 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+            ['class' => SerialColumn::className()],
 
             'id',
-            'parent_id',
-            'ufuCategoryTranslate.name',
+            'parentName',
+            'name',
 
             [
                 'class' => ActionColumn::className(),

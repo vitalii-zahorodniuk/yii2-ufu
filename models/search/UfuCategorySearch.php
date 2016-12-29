@@ -7,10 +7,18 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
- * UfuCategorySearch represents the model behind the search form about `xz1mefx\ufu\models\UfuCategory`.
+ * Class UfuCategorySearch
+ *
+ * @property string $name
+ * @property string $parentName
+ *
+ * @package xz1mefx\ufu\models\search
  */
 class UfuCategorySearch extends UfuCategory
 {
+
+    public $parentName;
+    public $name;
 
     /**
      * @inheritdoc
@@ -19,7 +27,7 @@ class UfuCategorySearch extends UfuCategory
     {
         return [
             [['id', 'parent_id', 'created_at', 'updated_at'], 'integer'],
-            [['parents_list', 'children_list'], 'safe'],
+            [['parentName', 'name', 'parents_list', 'children_list'], 'safe'],
         ];
     }
 
@@ -41,13 +49,27 @@ class UfuCategorySearch extends UfuCategory
      */
     public function search($params)
     {
-        $query = UfuCategory::find();
+        $query = UfuCategory::find()
+            ->joinWith([
+                'parentUfuCategoryTranslate',
+                'ufuCategoryTranslate',
+            ]);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
+        $dataProvider->sort->attributes['parentName'] = [
+            'asc' => [self::TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE . '.name' => SORT_ASC],
+            'desc' => [self::TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE . '.name' => SORT_DESC],
+        ];
+
+        $dataProvider->sort->attributes['name'] = [
+            'asc' => [self::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name' => SORT_ASC],
+            'desc' => [self::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name' => SORT_DESC],
+        ];
 
         $this->load($params);
 
@@ -59,14 +81,19 @@ class UfuCategorySearch extends UfuCategory
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'parent_id' => $this->parent_id,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            UfuCategory::tableName() . '.id' => $this->id,
+            UfuCategory::tableName() . '.parent_id' => $this->parent_id,
+            UfuCategory::tableName() . '.created_at' => $this->created_at,
+            UfuCategory::tableName() . '.updated_at' => $this->updated_at,
         ]);
 
-        $query->andFilterWhere(['like', 'parents_list', $this->parents_list])
-            ->andFilterWhere(['like', 'children_list', $this->children_list]);
+        $query
+            ->andFilterWhere(['like', self::TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE . '.name', $this->parentName])
+            ->andFilterWhere(['like', self::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name', $this->name])
+            ->andFilterWhere(['like', UfuCategory::tableName() . '.parents_list', $this->parents_list])
+            ->andFilterWhere(['like', UfuCategory::tableName() . '.children_list', $this->children_list]);
+
+//        die($query->createCommand()->rawSql);
 
         return $dataProvider;
     }
