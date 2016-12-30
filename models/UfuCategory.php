@@ -49,15 +49,6 @@ class UfuCategory extends ActiveRecord
      */
     public static function collectItemsTree()
     {
-//        die(self::find()
-//            ->joinWith(['ufuCategoryTranslate', 'ufuUrl'])
-//            ->select([
-//                self::tableName() . '.id',
-//                self::tableName() . '.parent_id',
-//                self::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name',
-//                self::TABLE_ALIAS_UFU_URL . '.type',
-//            ])
-//            ->asArray()->createCommand()->rawSql);
         $preparedData = ArrayHelper::map(
             self::find()
                 ->joinWith(['ufuCategoryTranslate', 'ufuUrl'])
@@ -82,6 +73,14 @@ class UfuCategory extends ActiveRecord
             'parent_id'
         );
         return self::_collectItemsTreeRecursive($preparedData);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return '{{%ufu_category}}';
     }
 
     /**
@@ -332,14 +331,6 @@ class UfuCategory extends ActiveRecord
         return $this
             ->hasOne(self::className(), ['id' => 'parent_id'])
             ->from([self::TABLE_ALIAS_PARENT_UFU_CATEGORY => self::tableName()]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return '{{%ufu_category}}';
     }
 
     /**

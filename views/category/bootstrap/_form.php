@@ -18,9 +18,9 @@ use yii\widgets\ActiveForm;
         <label><?= $model->attributeLabels()['parent_id'] ?></label>
         <?= CategoryTreeWidget::widget([
             'multiselect' => FALSE,
-            'model' => $model,
-            'name' => 'parent_id',
-            'selectedItem' => $model->parent_id,
+            'name' => Html::getInputName($model, 'parent_id'),
+            'selectedItems' => $model->parent_id,
+//            'onlyType' => false,
         ]) ?>
     </div>
 
@@ -39,7 +39,7 @@ use yii\widgets\ActiveForm;
 
 <?php
 $this->registerJs(<<<JS
-$('#ufucategory-isfirstsegment').on('click', function () {
+$('#ufucategory-is_parent').on('click', function () {
     if ($(this).is(':checked')) {
         $('#categoryTreeBlock').slideUp();
     } else {
