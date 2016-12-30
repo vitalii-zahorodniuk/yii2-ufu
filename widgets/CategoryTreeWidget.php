@@ -17,7 +17,12 @@ class CategoryTreeWidget extends Widget
     /**
      * @var string
      */
-    public $emptyText = "<i>(noname)</i>";
+    public $emptyLabelText = "<i>(noname)</i>";
+
+    /**
+     * @var string
+     */
+    public $emptyDataText = "<i>(no data)</i>";
 
     /**
      * @var bool
@@ -70,7 +75,8 @@ class CategoryTreeWidget extends Widget
     {
         $widgetOptions = Json::encode([
             'data' => self::collectItemsTree(),
-            'emptyText' => $this->emptyText,
+            'emptyLabelText' => $this->emptyLabelText,
+            'emptyDataText' => $this->emptyDataText,
             'multiselect' => $this->multiselect,
             'name' => $this->name,
             'selectedItems' => is_array($this->selectedItems) ? $this->selectedItems : [$this->selectedItems],
@@ -103,7 +109,7 @@ class CategoryTreeWidget extends Widget
                 ->all(),
             'id',
             function ($element) {
-                /* @var self $element */
+                /* @var UfuCategory $element */
                 return [
                     'id' => (int)$element['id'],
                     'parent_id' => (int)$element['parent_id'],

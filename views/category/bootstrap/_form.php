@@ -7,11 +7,17 @@ use yii\widgets\ActiveForm;
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 /* @var $type integer|null */
 /* @var $form yii\widgets\ActiveForm */
+
+if ($model->isNewRecord) {
+    $model->is_parent = 1;
+}
 ?>
 
 <div class="ufu-category-form">
 
     <?php $form = ActiveForm::begin(); ?>
+
+    <?= $form->field($model, "type")->hiddenInput(['value' => 1])->label(FALSE) ?>
 
     <?= $form->field($model, "is_parent")->checkbox() ?>
 

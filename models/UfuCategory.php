@@ -1,9 +1,11 @@
 <?php
 namespace xz1mefx\ufu\models;
 
+use xz1mefx\base\models\traits\CategoryTreeTrait;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\Json;
 
 /**
  * This is the model class for table "{{%ufu_category}}".
@@ -21,9 +23,11 @@ use yii\db\ActiveRecord;
  * @property UfuCategoryTranslate   $parentUfuCategoryTranslate
  * @property string                 $parentName
  *
- * @property integer                $is_parent
- * @property string                 $url
+ * @property integer                $segmentLevel
  * @property string                 $type
+ * @property string                 $url
+ *
+ * @property integer                $is_parent
  * @property UfuCategoryRelation[]  $ufuCategoryRelations
  * @property UfuCategoryTranslate[] $ufuCategoryTranslates
  * @property MlLanguage[]           $languages
@@ -33,6 +37,8 @@ use yii\db\ActiveRecord;
 class UfuCategory extends ActiveRecord
 {
 
+    use CategoryTreeTrait;
+
     const TABLE_ALIAS_PARENT_UFU_CATEGORY = 'puc';
     const TABLE_ALIAS_UFU_CATEGORY_TRANSLATE = 'uct';
     const TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE = 'puct';
@@ -40,8 +46,17 @@ class UfuCategory extends ActiveRecord
 
     public $is_parent;
 
-    private $_url;
+    private $_segmentLevel;
     private $_type;
+    private $_url;
+
+    /**
+     * @return bool
+     */
+    public static function checkRecordsExist()
+    {
+        return self::find()->exists();
+    }
 
     /**
      * @inheritdoc
@@ -56,9 +71,7 @@ class UfuCategory extends ActiveRecord
      */
     public function afterFind()
     {
-        if ($this->parent_id == 0) {
-            $this->is_parent = 1; // to show
-        }
+        $this->is_parent = (int)($this->parent_id == 0 || $this->isNewRecord);
         parent::afterFind();
     }
 
@@ -88,16 +101,34 @@ class UfuCategory extends ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        $url = $this->ufuUrl;
-        if ($url === NULL) {
-            $url = new UfuUrl();
-        }
+        $url = $this->ufuUrl ?: new UfuUrl();
+        $url->segment_level = $this->segmentLevel;
+        $url->is_category = 1;
+        $url->type = $this->type;
         $url->item_id = $this->id;
         $url->url = $this->url;
-        $url->type = $this->type;
         $url->save();
+    }
 
-        Yii::$app->multilangCache->flush(); // TODO: make correct clearing in future
+    /**
+     * @inheritdoc
+     */
+    public function updateCategoryTree()
+    {
+        self::resetItemsIdTreeCache(); // clear cached data
+        $itemsTreeList = self::collectItemsIdTree(TRUE); // get flat array
+        if (isset($itemsTreeList[$this->id])) {
+            foreach (self::findAll(array_merge($itemsTreeList[$this->id]['parents_id_list'], [$this->id], $itemsTreeList[$this->id]['children_id_list'])) as $category) {
+                // Update category
+                $category->parents_list = Json::encode($itemsTreeList[$category->id]['parents_id_list']);
+                $category->children_list = Json::encode($itemsTreeList[$category->id]['children_id_list']);
+                $category->segmentLevel = Json::encode($itemsTreeList[$category->id]['level']);
+                if (in_array($itemsTreeList[$category->id], $itemsTreeList[$this->id]['children_id_list'])) {
+                    $category->type = $this->type;
+                }
+                $category->save();
+            }
+        }
     }
 
     /**
@@ -122,17 +153,24 @@ class UfuCategory extends ActiveRecord
     {
         return [
             // parent id
-            ['parent_id', 'required'],
             ['parent_id', 'integer'],
             ['parent_id', 'default', 'value' => 0],
             // parents list
             ['parents_list', 'string'],
+            ['parents_list', 'default', 'value' => '[]'],
             // children list
             ['children_list', 'string'],
+            ['children_list', 'default', 'value' => '[]'],
             // created-updated timestamps
             [['created_at', 'updated_at'], 'integer'],
+            // virtual segment level field
+            [['segmentLevel'], 'integer'],
+            [['segmentLevel'], 'default', 'value' => 1],
+            // virtual type field
+            [['type'], 'integer'],
             // virtual url field
-            [['url'], 'safe'],
+            [['url'], 'required'],
+            [['url'], 'string'],
             // virtual is_parent field
             [['is_parent'], 'safe'],
         ];
@@ -155,29 +193,29 @@ class UfuCategory extends ActiveRecord
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getUrl()
+    public function getSegmentLevel()
     {
-        if (isset($this->_url)) {
-            return $this->_url;
+        if (isset($this->_segmentLevel)) {
+            return $this->_segmentLevel;
         }
         if ($this->ufuUrl) {
-            return $this->_url = $this->ufuUrl->url;
+            return $this->_segmentLevel = $this->ufuUrl->segment_level;
         }
-        return $this->_url = '';
+        return $this->_segmentLevel = 1;
     }
 
     /**
-     * @param $value
+     * @param $value integer
      */
-    public function setUrl($value)
+    public function setSegmentLevel($value)
     {
-        $this->_url = $value;
+        $this->_segmentLevel = $value;
     }
 
     /**
-     * @return string
+     * @return int|null
      */
     public function getType()
     {
@@ -187,15 +225,37 @@ class UfuCategory extends ActiveRecord
         if ($this->ufuUrl) {
             return $this->_type = $this->ufuUrl->type;
         }
-        return $this->_type = '';
+        return $this->_type = NULL;
     }
 
     /**
-     * @param $value
+     * @param $value integer
      */
     public function setType($value)
     {
         $this->_type = $value;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getUrl()
+    {
+        if (isset($this->_url)) {
+            return $this->_url;
+        }
+        if ($this->ufuUrl) {
+            return $this->_url = $this->ufuUrl->url;
+        }
+        return $this->_url = NULL;
+    }
+
+    /**
+     * @param $value string
+     */
+    public function setUrl($value)
+    {
+        $this->_url = $value;
     }
 
     /**

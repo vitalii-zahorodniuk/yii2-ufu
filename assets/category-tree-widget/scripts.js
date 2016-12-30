@@ -5,7 +5,8 @@
         init: function (options) {
             settings = $.extend({
                 'data': {},
-                'emptyText': "<i>(noname)</i>",
+                'emptyLabelText': "<i>(noname)</i>",
+                'emptyDataText': "<i>(no data)</i>",
                 'multiselect': true,
                 'name': '',
                 'selectedItems': [],
@@ -46,6 +47,7 @@
     };
 
     function renderTreeRecursive(dataList, parentId) {
+        parentId = parentId || 0;
         var items = '';
         $.each(dataList, function (key, value) {
             if (
@@ -66,18 +68,22 @@
                 } else {
                     items += "<input type=\"radio\" name=\"" + settings.name + "\" value=\"" + value.id + "\"" + (isChecked ? ' checked' : '') + ">";
                 }
-                items += (value.name.length ? value.name : settings.emptyText) + "</label>\n";
+                items += (value.name.length ? value.name : settings.emptyLabelText) + "</label>\n";
                 items += childs;
                 items += "</li>\n";
             }
         });
-        if (items.length == 0) {
+
+        if (parentId === 0) {
+            if (items.length === 0) {
+                return settings.emptyDataText;
+            }
+            return "<div class=\"ctreeview\" style=\"max-height: " + settings.height + ";\">\n<ul>\n" + items + "</ul>\n</div>\n";
+        }
+        if (items.length === 0) {
             return '';
         }
-        if (parentId > 0) {
-            return "<ul class=\"ctreeview-child\">" + items + "</ul>\n";
-        }
-        return "<div class=\"ctreeview\" style=\"height: " + settings.height + ";\"><ul>\n" + items + "</ul></div>\n";
+        return "<ul class=\"ctreeview-child\">\n" + items + "</ul>\n";
     }
 
     var make = function () {
