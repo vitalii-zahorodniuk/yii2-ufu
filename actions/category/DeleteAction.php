@@ -9,8 +9,10 @@ use yii\web\NotFoundHttpException;
 /**
  * Class DeleteAction
  *
- * @property string $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
- * @property string $view  the view name (if need to override)
+ * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
+ * @property string  $view  the view name (if need to override)
+ *
+ * @property integer $type
  *
  * @package xz1mefx\ufu\actions\category
  */

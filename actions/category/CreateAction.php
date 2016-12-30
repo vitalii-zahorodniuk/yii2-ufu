@@ -10,8 +10,10 @@ use yii\web\Response;
 /**
  * Class CreateAction
  *
- * @property string $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
- * @property string $view  the view name (if need to override)
+ * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
+ * @property string  $view  the view name (if need to override)
+ *
+ * @property integer $type
  *
  * @package xz1mefx\ufu\actions\category
  */
@@ -39,6 +41,7 @@ class CreateAction extends BaseAction
             $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/create",
             [
                 'model' => $model,
+                'type' => $this->type,
             ]
         );
     }

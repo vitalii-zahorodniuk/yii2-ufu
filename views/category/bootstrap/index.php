@@ -8,6 +8,7 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $searchModel xz1mefx\ufu\models\search\UfuCategorySearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $type integer|null */
 /* @var $canAdd bool */
 /* @var $canUpdate bool */
 /* @var $canDelete bool */

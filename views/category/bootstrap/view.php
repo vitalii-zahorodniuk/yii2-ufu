@@ -4,6 +4,7 @@ use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
 /* @var $model xz1mefx\ufu\models\UfuCategory */
+/* @var $type integer|null */
 /* @var $canUpdate bool */
 /* @var $canDelete bool */
 

@@ -9,8 +9,10 @@ use yii\web\NotFoundHttpException;
 /**
  * Class ViewAction
  *
- * @property string $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
- * @property string $view  the view name (if need to override)
+ * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
+ * @property string  $view  the view name (if need to override)
+ *
+ * @property integer $type
  *
  * @package xz1mefx\ufu\actions\category
  */
@@ -36,7 +38,7 @@ class ViewAction extends BaseAction
             $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/view",
             [
                 'model' => $model,
-
+                'type' => $this->type,
                 'canUpdate' => $this->canUpdate,
                 'canDelete' => $this->canDelete,
             ]

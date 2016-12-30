@@ -4,7 +4,6 @@ namespace xz1mefx\ufu\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%ufu_category}}".
@@ -43,75 +42,6 @@ class UfuCategory extends ActiveRecord
 
     private $_url;
     private $_type;
-
-    /**
-     * @return array
-     */
-    public static function collectItemsTree()
-    {
-        $preparedData = ArrayHelper::map(
-            self::find()
-                ->joinWith(['ufuCategoryTranslate', 'ufuUrl'])
-                ->select([
-                    self::tableName() . '.id',
-                    self::tableName() . '.parent_id',
-                    self::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name',
-                    self::TABLE_ALIAS_UFU_URL . '.type',
-                ])
-                ->asArray()
-                ->all(),
-            'id',
-            function ($element) {
-                /* @var self $element */
-                return [
-                    'id' => (int)$element['id'],
-                    'parent_id' => (int)$element['parent_id'],
-                    'name' => (string)$element['name'],
-                    'type' => (int)$element['type'],
-                ];
-            },
-            'parent_id'
-        );
-        return self::_collectItemsTreeRecursive($preparedData);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return '{{%ufu_category}}';
-    }
-
-    /**
-     * @param array $data
-     * @param int   $parent_id
-     * @param array $parentsList
-     *
-     * @return array
-     */
-    private static function _collectItemsTreeRecursive(&$data, $parent_id = 0, $parentsList = [])
-    {
-        $res = [];
-        if (isset($data[$parent_id])) {
-            foreach ($data[$parent_id] as $category) {
-                $preparedParentsIdsList = $parentsList;
-                $preparedParentsIdsList[] = $category['parent_id'];
-
-                $resCategoriesList[$category['id']] = [
-                    'id' => $category['id'],
-                    'parent_id' => $category['parent_id'],
-                    'parents_id_list' => $preparedParentsIdsList,
-                    'name' => $category['name'],
-                    'type' => $category['type'],
-                ];
-                $res[$category['id']] = $resCategoriesList[$category['id']];
-                $res[$category['id']]['childs'] = self::_collectItemsTreeRecursive($data, $category['id'], $preparedParentsIdsList);
-            }
-        }
-
-        return $res;
-    }
 
     /**
      * @inheritdoc
@@ -331,6 +261,14 @@ class UfuCategory extends ActiveRecord
         return $this
             ->hasOne(self::className(), ['id' => 'parent_id'])
             ->from([self::TABLE_ALIAS_PARENT_UFU_CATEGORY => self::tableName()]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return '{{%ufu_category}}';
     }
 
     /**

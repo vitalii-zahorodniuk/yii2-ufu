@@ -11,8 +11,10 @@ use yii\web\Response;
 /**
  * Class UpdateAction
  *
- * @property string $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
- * @property string $view  the view name (if need to override)
+ * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
+ * @property string  $view  the view name (if need to override)
+ *
+ * @property integer $type
  *
  * @package xz1mefx\ufu\actions\category
  */
@@ -45,6 +47,7 @@ class UpdateAction extends BaseAction
             $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/update",
             [
                 'model' => $model,
+                'type' => $this->type,
             ]
         );
     }

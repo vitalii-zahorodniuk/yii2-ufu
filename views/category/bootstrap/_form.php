@@ -5,6 +5,7 @@ use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model xz1mefx\ufu\models\UfuCategory */
+/* @var $type integer|null */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -20,7 +21,8 @@ use yii\widgets\ActiveForm;
             'multiselect' => FALSE,
             'name' => Html::getInputName($model, 'parent_id'),
             'selectedItems' => $model->parent_id,
-//            'onlyType' => false,
+            'ignoreItems' => $model->id,
+            'onlyType' => $type,
         ]) ?>
     </div>
 

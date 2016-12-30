@@ -4,6 +4,7 @@ namespace xz1mefx\ufu\widgets;
 use xz1mefx\ufu\models\UfuCategory;
 use xz1mefx\ufu\web\assets\CategoryTreeWidgetAsset;
 use yii\bootstrap\Widget;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -34,6 +35,11 @@ class CategoryTreeWidget extends Widget
     public $selectedItems = [];
 
     /**
+     * @var int|array
+     */
+    public $ignoreItems = [];
+
+    /**
      * @var bool
      */
     public $showSelected = TRUE;
@@ -46,7 +52,7 @@ class CategoryTreeWidget extends Widget
     /**
      * @var bool
      */
-    public $onlyType = FALSE;
+    public $onlyType = NULL;
 
     /**
      * @inheritdoc
@@ -63,19 +69,82 @@ class CategoryTreeWidget extends Widget
     public function renderWidget()
     {
         $widgetOptions = Json::encode([
-            'data' => UfuCategory::collectItemsTree(),
+            'data' => self::collectItemsTree(),
             'emptyText' => $this->emptyText,
             'multiselect' => $this->multiselect,
             'name' => $this->name,
             'selectedItems' => is_array($this->selectedItems) ? $this->selectedItems : [$this->selectedItems],
+            'ignoreItems' => is_array($this->ignoreItems) ? $this->ignoreItems : [$this->ignoreItems],
             'showSelected' => $this->showSelected,
             'height' => $this->height,
-            'onlyType' => $this->onlyType,
+            'onlyType' => ((is_bool($this->onlyType) || $this->onlyType === NULL) ? FALSE : (int)$this->onlyType),
         ]);
 
         $this->view->registerJs("$('#ctree').categoryTreeView($widgetOptions);");
 
         return '<div id="ctree"></div>';
+    }
+
+    /**
+     * @return array
+     */
+    public static function collectItemsTree()
+    {
+        $preparedData = ArrayHelper::map(
+            UfuCategory::find()
+                ->joinWith(['ufuCategoryTranslate', 'ufuUrl'])
+                ->select([
+                    UfuCategory::tableName() . '.id',
+                    UfuCategory::tableName() . '.parent_id',
+                    UfuCategory::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name',
+                    UfuCategory::TABLE_ALIAS_UFU_URL . '.type',
+                ])
+                ->asArray()
+                ->all(),
+            'id',
+            function ($element) {
+                /* @var self $element */
+                return [
+                    'id' => (int)$element['id'],
+                    'parent_id' => (int)$element['parent_id'],
+                    'name' => (string)$element['name'],
+                    'type' => (int)$element['type'],
+                ];
+            },
+            'parent_id'
+        );
+
+        return self::_collectItemsTreeRecursive($preparedData);
+    }
+
+    /**
+     * @param array $data
+     * @param int   $parent_id
+     * @param array $parentsList
+     *
+     * @return array
+     */
+    private static function _collectItemsTreeRecursive(&$data, $parent_id = 0, $parentsList = [])
+    {
+        $res = [];
+        if (isset($data[$parent_id])) {
+            foreach ($data[$parent_id] as $category) {
+                $preparedParentsIdsList = $parentsList;
+                $preparedParentsIdsList[] = $category['parent_id'];
+
+                $resCategoriesList[$category['id']] = [
+                    'id' => $category['id'],
+                    'parent_id' => $category['parent_id'],
+                    'parents_id_list' => $preparedParentsIdsList,
+                    'name' => $category['name'],
+                    'type' => $category['type'],
+                ];
+                $res[$category['id']] = $resCategoriesList[$category['id']];
+                $res[$category['id']]['childs'] = self::_collectItemsTreeRecursive($data, $category['id'], $preparedParentsIdsList);
+            }
+        }
+
+        return $res;
     }
 
 }

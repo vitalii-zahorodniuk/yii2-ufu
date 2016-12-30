@@ -4,6 +4,7 @@ use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model xz1mefx\ufu\models\search\UfuCategorySearch */
+/* @var $type integer|null */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 

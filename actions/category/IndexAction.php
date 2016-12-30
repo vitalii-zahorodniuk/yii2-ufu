@@ -8,12 +8,14 @@ use Yii;
 /**
  * Class IndexAction
  *
- * @property string $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
- * @property string $view  the view name (if need to override)
+ * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
+ * @property string  $view  the view name (if need to override)
  *
- * @property bool   $canAdd
- * @property bool   $canUpdate
- * @property bool   $canDelete
+ * @property integer $type
+ *
+ * @property bool    $canAdd
+ * @property bool    $canUpdate
+ * @property bool    $canDelete
  *
  * @package xz1mefx\ufu\actions\category
  */
@@ -37,7 +39,7 @@ class IndexAction extends BaseAction
             [
                 'searchModel' => $searchModel,
                 'dataProvider' => $dataProvider,
-
+                'type' => $this->type,
                 'canAdd' => $this->canAdd,
                 'canUpdate' => $this->canUpdate,
                 'canDelete' => $this->canDelete,

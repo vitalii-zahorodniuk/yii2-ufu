@@ -16,4 +16,9 @@ class BaseAction extends Action
     public $theme = self::THEME_BOOTSTRAP;
     public $view = NULL;
 
+    /**
+     * @var int
+     */
+    public $type = NULL;
+
 }

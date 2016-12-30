@@ -9,6 +9,7 @@
                 'multiselect': true,
                 'name': '',
                 'selectedItems': [],
+                'ignoreItems': [],
                 'showSelected': true,
                 'height': 'auto',
                 'onlyType': false,
@@ -47,20 +48,25 @@
     function renderTreeRecursive(dataList, parentId) {
         var items = '';
         $.each(dataList, function (key, value) {
-            if (settings.onlyType === false || settings.onlyType === value.type) {
+            if (
+                (settings.onlyType === false || settings.onlyType === value.type)
+                && $.inArray(value.id, settings.ignoreItems) === -1
+            ) {
                 var childs = renderTreeRecursive(value.childs, value.id);
                 var hasNoChilds = childs.length === 0;
+                var isChecked = $.inArray(value.id, settings.selectedItems) > -1;
+
                 items += "<li data-id=\"" + value.id + "\" data-type=\"" + value.type + "\">\n";
                 items += "<span data-enable=\"" + hasNoChilds + "\" class=\"ctreeview-nochevron\" style=\"display: " + (hasNoChilds ? 'inline' : 'none') + ";\"></span>";
                 items += "<span data-enable=\"" + !hasNoChilds + "\" class=\"glyphicon glyphicon-chevron-right\" style=\"display: " + (hasNoChilds ? 'none' : 'inline') + ";\"></span>";
                 items += "<span data-enable=\"" + !hasNoChilds + "\" class=\"glyphicon glyphicon-chevron-down\"></span>"; // it's hidden by default in css
-                var isChecked = $.inArray(value.id, settings.selectedItems) > -1;
+                items += "<label class=\"ctreeview-item-label\">";
                 if (settings.multiselect) {
                     items += "<input type=\"checkbox\" name=\"" + settings.name + "\" value=\"" + value.id + "\"" + (isChecked ? ' checked' : '') + ">";
                 } else {
                     items += "<input type=\"radio\" name=\"" + settings.name + "\" value=\"" + value.id + "\"" + (isChecked ? ' checked' : '') + ">";
                 }
-                items += "<span class=\"ctreeview-item-label\">" + (value.name.length ? value.name : settings.emptyText) + "</span>\n";
+                items += (value.name.length ? value.name : settings.emptyText) + "</label>\n";
                 items += childs;
                 items += "</li>\n";
             }

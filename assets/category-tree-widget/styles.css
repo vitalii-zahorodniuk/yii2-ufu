@@ -41,6 +41,6 @@
     display: none;
 }
 
-.ctreeview .ctreeview-item-label {
-    margin-left: 5px;
+.ctreeview .ctreeview-item-label input {
+    margin: 0 5px 0 0;
 }
