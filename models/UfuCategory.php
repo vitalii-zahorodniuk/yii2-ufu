@@ -111,12 +111,55 @@ class UfuCategory extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * @param null|string|array $table     Examples:
+     *                                     'table_name'
+     *                                     or 'table_name tn'
+     *                                     or ['table_name_1 tn1', 'table_name_2', 'tn3'=>'table_name_3']
+     * @param string            $blockType 'WRITE'|'READ'
+     */
+    private static function lockTables($table = NULL, $blockType = 'WRITE')
+    {
+        $sql = "LOCK TABLES ";
+        if ($table === NULL) {
+            $sql .= self::tableName() . " $blockType";
+        } else {
+            $tmpSql = '';
+            foreach ((is_array($table) ? $table : [$table]) as $key => $value) {
+                $tmpSql .= empty($tmpSql) ? '' : ', ';
+                $tmpSql .= "$value";
+                $tmpSql .= is_string($key) ? " $key" : '';
+                $tmpSql .= " $blockType";
+            }
+            $sql .= $tmpSql;
+        }
+//        die(Yii::$app->db->createCommand($sql)->rawSql);
+        Yii::$app->db->createCommand($sql)->query();
+    }
+
+    /**
+     *
+     */
+    private static function unlockTables()
+    {
+        Yii::$app->db->createCommand("UNLOCK TABLES;")->query();
+    }
+
+    /**
+     *
      */
     public function updateCategoryTree()
     {
-        self::resetItemsIdTreeCache(); // clear cached data
-        $itemsTreeList = self::collectItemsIdTree(TRUE); // get flat array
+        // lock tables
+        self::lockTables([
+            UfuUrl::tableName(),
+            self::TABLE_ALIAS_UFU_URL => UfuUrl::tableName(),
+            self::tableName(),
+        ]);
+        // clear cached data
+        self::resetItemsIdTreeCache();
+        // get flat tree array
+        $itemsTreeList = self::collectItemsIdTree(TRUE);
+        // refresh data
         if (isset($itemsTreeList[$this->id])) {
             foreach (self::findAll(array_merge($itemsTreeList[$this->id]['parents_id_list'], [$this->id], $itemsTreeList[$this->id]['children_id_list'])) as $category) {
                 // Update category
@@ -129,6 +172,8 @@ class UfuCategory extends ActiveRecord
                 $category->save();
             }
         }
+        // unlock locked tables
+        self::unlockTables();
     }
 
     /**
