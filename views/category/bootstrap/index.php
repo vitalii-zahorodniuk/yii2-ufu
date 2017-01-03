@@ -1,4 +1,5 @@
 <?php
+use xz1mefx\ufu\models\UfuCategory;
 use yii\bootstrap\Html;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
@@ -33,7 +34,29 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => SerialColumn::className()],
 
-            'id',
+            [
+                'attribute' => 'id',
+                'headerOptions' => ['class' => 'col-xs-1 col-sm-1'],
+                'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
+            ],
+            [
+                'attribute' => 'type',
+                'filter' => Yii::$app->ufu->getDrDownCategoryTypes(),
+                'content' => function ($model) {
+                    /* @var $model UfuCategory */
+                    return (Yii::$app->ufu->getTypeNameById($model->type));
+                },
+                'visible' => !$type,
+            ],
+//            [
+//                'label' => Yii::t('ufu-tools', 'Is main category'),
+//                'content' => function ($model) {
+//                    /* @var $model UfuCategory */
+//                    return $model->parent_id == 0 ? Html::icon('ok') : '';
+//                },
+//                'headerOptions' => ['class' => 'text-center col-xs-1 col-sm-1'],
+//                'contentOptions' => ['class' => 'text-center col-xs-1 col-sm-1'],
+//            ],
             [
                 'attribute' => 'parentName',
                 'format' => 'raw',

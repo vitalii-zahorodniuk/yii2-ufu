@@ -165,7 +165,9 @@ class UfuCategory extends UrlActiveRecord
             ['segmentLevel', 'integer'],
             ['segmentLevel', 'default', 'value' => 1],
             // virtual type field
+            ['type', 'required'],
             ['type', 'integer'],
+            ['type', 'in', 'range' => Yii::$app->ufu->getTypesIdList()],
             // virtual url field
             ['url', 'required'],
             ['url', 'string', 'min' => 1, 'max' => 255],
@@ -182,6 +184,7 @@ class UfuCategory extends UrlActiveRecord
     {
         return [
             'id' => Yii::t('ufu-tools', 'ID'),
+            'type' => Yii::t('ufu-tools', 'Type'),
             'is_parent' => Yii::t('ufu-tools', 'Is Parent'),
             'parent_id' => Yii::t('ufu-tools', 'Parent ID'),
             'parents_list' => Yii::t('ufu-tools', 'Parents List'),

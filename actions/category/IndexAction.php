@@ -32,6 +32,9 @@ class IndexAction extends BaseAction
     public function run()
     {
         $searchModel = new UfuCategorySearch();
+        if (is_int($this->type)) {
+            $searchModel->type = $this->type;
+        }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->controller->render(

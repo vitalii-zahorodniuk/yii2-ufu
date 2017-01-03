@@ -33,7 +33,8 @@ class ViewAction extends BaseAction
      */
     public function run($id)
     {
-        if (($model = UfuCategory::findOne($id)) === NULL) {
+        $model = UfuCategory::findOne($id);
+        if ($model === NULL || (is_int($this->type) && $model->type != $this->type)) {
             throw new NotFoundHttpException(Yii::t('ufu-tools', 'The requested category does not exist'));
         }
 

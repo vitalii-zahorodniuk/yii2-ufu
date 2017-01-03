@@ -18,19 +18,25 @@ if ($model->isNewRecord) {
 
     <?php $form = ActiveForm::begin(['enableAjaxValidation' => TRUE, 'validateOnType' => TRUE]); ?>
 
-    <?= $form->field($model, "type")->hiddenInput(['value' => 1])->label(FALSE) ?>
+    <?php if ($model->isNewRecord && $type): ?>
+        <?= $form->field($model, "type")->hiddenInput(['value' => $type])->label(FALSE) ?>
+    <?php else: ?>
+        <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownCategoryTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
+    <?php endif; ?>
 
-    <?= $form->field($model, "is_parent")->checkbox() ?>
+    <div id="categoryCommonBlock" style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">
+        <?= $form->field($model, "is_parent")->checkbox() ?>
 
-    <div id="categoryTreeBlock" style="display: <?= $model->is_parent ? 'none' : 'block' ?>;">
-        <label><?= $model->attributeLabels()['parent_id'] ?></label>
-        <?= CategoryTreeWidget::widget([
-            'multiselect' => FALSE,
-            'name' => Html::getInputName($model, 'parent_id'),
-            'selectedItems' => $model->parent_id,
-            'ignoreItems' => $model->id,
-            'onlyType' => $type,
-        ]) ?>
+        <div id="categoryTreeBlock" style="display: <?= $model->is_parent ? 'none' : 'block' ?>;">
+            <label><?= $model->attributeLabels()['parent_id'] ?></label>
+            <?= CategoryTreeWidget::widget([
+                'multiselect' => FALSE,
+                'name' => Html::getInputName($model, 'parent_id'),
+                'selectedItems' => $model->parent_id,
+                'ignoreItems' => $model->id,
+                'onlyType' => $model->isNewRecord && $type ? $type : $model->type,
+            ]) ?>
+        </div>
     </div>
 
     <?= $form->field($model, "url")->widget(UrlInputWidget::className()) ?>
@@ -48,6 +54,10 @@ if ($model->isNewRecord) {
 
 <?php
 $this->registerJs(<<<JS
+$('#ufucategory-type').on('change', function () {
+    $('#ctree').categoryTreeView('showOnlyType', $(this).val());
+    $('#categoryCommonBlock').slideDown();
+});
 $('#ufucategory-is_parent').on('click', function () {
     if ($(this).is(':checked')) {
         $('#categoryTreeBlock').slideUp();

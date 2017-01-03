@@ -26,7 +26,7 @@ class UfuCategorySearch extends UfuCategory
     public function rules()
     {
         return [
-            [['id', 'parent_id', 'created_at', 'updated_at'], 'integer'],
+            [['id', 'type', 'parent_id', 'created_at', 'updated_at'], 'integer'],
             [['parentName', 'name', 'parents_list', 'children_list'], 'safe'],
         ];
     }
@@ -53,6 +53,7 @@ class UfuCategorySearch extends UfuCategory
             ->joinWith([
                 'parentUfuCategoryTranslate',
                 'ufuCategoryTranslate',
+                'ufuUrl',
             ]);
 
         // add conditions that should always apply here
@@ -60,6 +61,11 @@ class UfuCategorySearch extends UfuCategory
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
+//        $dataProvider->sort->attributes['type'] = [
+//            'asc' => [self::TABLE_ALIAS_UFU_URL . '.type' => SORT_ASC],
+//            'desc' => [self::TABLE_ALIAS_UFU_URL . '.type' => SORT_DESC],
+//        ];
 
         $dataProvider->sort->attributes['parentName'] = [
             'asc' => [self::TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE . '.name' => SORT_ASC],
@@ -82,6 +88,7 @@ class UfuCategorySearch extends UfuCategory
         // grid filtering conditions
         $query->andFilterWhere([
             UfuCategory::tableName() . '.id' => $this->id,
+            self::TABLE_ALIAS_UFU_URL . '.type' => $this->type,
             UfuCategory::tableName() . '.parent_id' => $this->parent_id,
             UfuCategory::tableName() . '.created_at' => $this->created_at,
             UfuCategory::tableName() . '.updated_at' => $this->updated_at,

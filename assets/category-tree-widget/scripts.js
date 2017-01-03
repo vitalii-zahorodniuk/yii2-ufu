@@ -18,7 +18,7 @@
             return this.each(make);
         },
         showOnlyType: function (typeId) {
-            settings.onlyType = typeId;
+            settings.onlyType = parseInt(typeId);
             methods.render.apply(this, arguments);
         },
         render: function () {

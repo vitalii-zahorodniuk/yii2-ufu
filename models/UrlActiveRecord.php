@@ -57,7 +57,7 @@ abstract class UrlActiveRecord extends ActiveRecord
             $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters and hyphens'));
         }
         // unique validator
-        if (UfuUrl::find()->where(['segment_level' => $this->segmentLevel, 'url' => $this->url])->exists()) {
+        if ($this->isNewRecord && UfuUrl::find()->where(['segment_level' => $this->segmentLevel, 'url' => $this->url])->exists()) {
             $this->addError($attribute, Yii::t('ufu-tools', 'This URL already exists, please enter another URL'));
         }
     }
