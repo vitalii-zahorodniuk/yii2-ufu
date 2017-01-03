@@ -12,6 +12,9 @@ use yii\web\NotFoundHttpException;
  * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
  * @property string  $view  the view name (if need to override)
  *
+ * @property bool    $canUpdate
+ * @property bool    $canDelete
+ *
  * @property integer $type
  *
  * @package xz1mefx\ufu\actions\category

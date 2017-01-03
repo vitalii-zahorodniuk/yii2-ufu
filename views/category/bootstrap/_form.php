@@ -1,5 +1,6 @@
 <?php
 use xz1mefx\ufu\widgets\CategoryTreeWidget;
+use xz1mefx\ufu\widgets\UrlInputWidget;
 use yii\bootstrap\Html;
 use yii\widgets\ActiveForm;
 
@@ -15,7 +16,7 @@ if ($model->isNewRecord) {
 
 <div class="ufu-category-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin(['enableAjaxValidation' => TRUE, 'validateOnType' => TRUE]); ?>
 
     <?= $form->field($model, "type")->hiddenInput(['value' => 1])->label(FALSE) ?>
 
@@ -32,7 +33,7 @@ if ($model->isNewRecord) {
         ]) ?>
     </div>
 
-    <?= $form->field($model, "url")->textInput() ?>
+    <?= $form->field($model, "url")->widget(UrlInputWidget::className()) ?>
 
     <div class="form-group">
         <?= Html::submitButton(

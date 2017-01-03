@@ -19,8 +19,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php if ($canUpdate || $canDelete): ?>
         <p>
-            <?php if ($canAdd): ?>
-                <?= Html::a(Yii::t('ufu-tools', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+            <?php if ($canDelete): ?>
+                <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
             <?php endif; ?>
             <?php if ($canDelete): ?>
                 <?= Html::a(Yii::t('ufu-tools', 'Delete'), ['delete', 'id' => $model->id], [
@@ -38,7 +38,18 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'parent_id',
+            [
+                'attribute' => 'type',
+                'format' => 'raw',
+            ],
+            [
+                'attribute' => 'parentName',
+                'format' => 'raw',
+            ],
+            [
+                'attribute' => 'name',
+                'format' => 'raw',
+            ],
         ],
     ]) ?>
 

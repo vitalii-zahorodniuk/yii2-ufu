@@ -34,8 +34,14 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => SerialColumn::className()],
 
             'id',
-            'parentName',
-            'name',
+            [
+                'attribute' => 'parentName',
+                'format' => 'raw',
+            ],
+            [
+                'attribute' => 'name',
+                'format' => 'raw',
+            ],
 
             [
                 'class' => ActionColumn::className(),

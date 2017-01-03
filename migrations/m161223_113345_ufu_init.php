@@ -34,7 +34,7 @@ class m161223_113345_ufu_init extends Migration
             'item_id' => $this->integer()->unsigned()->notNull(),
 
             'url' => $this->string()->notNull(),
-            'full_path_hash' => $this->string(32)->null()->unique(),
+            'full_path_hash' => $this->string(32)->null(),
 
             'created_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),
             'updated_at' => $this->integer()->unsigned()->notNull()->defaultValue(0),

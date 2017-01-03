@@ -4,7 +4,6 @@ namespace xz1mefx\ufu\models;
 use xz1mefx\base\models\traits\CategoryTreeTrait;
 use Yii;
 use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
 use yii\helpers\Json;
 
 /**
@@ -34,7 +33,7 @@ use yii\helpers\Json;
  * @property UfuUrl                 $ufuUrl
  * @property UfuCategory            $parent
  */
-class UfuCategory extends ActiveRecord
+class UfuCategory extends UrlActiveRecord
 {
 
     use CategoryTreeTrait;
@@ -45,10 +44,6 @@ class UfuCategory extends ActiveRecord
     const TABLE_ALIAS_UFU_URL = 'uu';
 
     public $is_parent;
-
-    private $_segmentLevel;
-    private $_type;
-    private $_url;
 
     /**
      * @return bool
@@ -95,56 +90,6 @@ class UfuCategory extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     */
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-
-        $url = $this->ufuUrl ?: new UfuUrl();
-        $url->segment_level = $this->segmentLevel;
-        $url->is_category = 1;
-        $url->type = $this->type;
-        $url->item_id = $this->id;
-        $url->url = $this->url;
-        $url->save();
-    }
-
-    /**
-     * @param null|string|array $table     Examples:
-     *                                     'table_name'
-     *                                     or 'table_name tn'
-     *                                     or ['table_name_1 tn1', 'table_name_2', 'tn3'=>'table_name_3']
-     * @param string            $blockType 'WRITE'|'READ'
-     */
-    private static function lockTables($table = NULL, $blockType = 'WRITE')
-    {
-        $sql = "LOCK TABLES ";
-        if ($table === NULL) {
-            $sql .= self::tableName() . " $blockType";
-        } else {
-            $tmpSql = '';
-            foreach ((is_array($table) ? $table : [$table]) as $key => $value) {
-                $tmpSql .= empty($tmpSql) ? '' : ', ';
-                $tmpSql .= "$value";
-                $tmpSql .= is_string($key) ? " $key" : '';
-                $tmpSql .= " $blockType";
-            }
-            $sql .= $tmpSql;
-        }
-//        die(Yii::$app->db->createCommand($sql)->rawSql);
-        Yii::$app->db->createCommand($sql)->query();
-    }
-
-    /**
-     *
-     */
-    private static function unlockTables()
-    {
-        Yii::$app->db->createCommand("UNLOCK TABLES;")->query();
-    }
-
-    /**
      *
      */
     public function updateCategoryTree()
@@ -169,11 +114,19 @@ class UfuCategory extends ActiveRecord
                 if (in_array($itemsTreeList[$category->id], $itemsTreeList[$this->id]['children_id_list'])) {
                     $category->type = $this->type;
                 }
-                $category->save();
+                $category->save(FALSE);
             }
         }
         // unlock locked tables
         self::unlockTables();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return '{{%ufu_category}}';
     }
 
     /**
@@ -209,15 +162,16 @@ class UfuCategory extends ActiveRecord
             // created-updated timestamps
             [['created_at', 'updated_at'], 'integer'],
             // virtual segment level field
-            [['segmentLevel'], 'integer'],
-            [['segmentLevel'], 'default', 'value' => 1],
+            ['segmentLevel', 'integer'],
+            ['segmentLevel', 'default', 'value' => 1],
             // virtual type field
-            [['type'], 'integer'],
+            ['type', 'integer'],
             // virtual url field
-            [['url'], 'required'],
-            [['url'], 'string'],
+            ['url', 'required'],
+            ['url', 'string', 'min' => 1, 'max' => 255],
+            ['url', 'validateUfuUrl'],
             // virtual is_parent field
-            [['is_parent'], 'safe'],
+            ['is_parent', 'safe'],
         ];
     }
 
@@ -235,72 +189,6 @@ class UfuCategory extends ActiveRecord
             'created_at' => Yii::t('ufu-tools', 'Created At'),
             'updated_at' => Yii::t('ufu-tools', 'Updated At'),
         ];
-    }
-
-    /**
-     * @return int
-     */
-    public function getSegmentLevel()
-    {
-        if (isset($this->_segmentLevel)) {
-            return $this->_segmentLevel;
-        }
-        if ($this->ufuUrl) {
-            return $this->_segmentLevel = $this->ufuUrl->segment_level;
-        }
-        return $this->_segmentLevel = 1;
-    }
-
-    /**
-     * @param $value integer
-     */
-    public function setSegmentLevel($value)
-    {
-        $this->_segmentLevel = $value;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getType()
-    {
-        if (isset($this->_type)) {
-            return $this->_type;
-        }
-        if ($this->ufuUrl) {
-            return $this->_type = $this->ufuUrl->type;
-        }
-        return $this->_type = NULL;
-    }
-
-    /**
-     * @param $value integer
-     */
-    public function setType($value)
-    {
-        $this->_type = $value;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getUrl()
-    {
-        if (isset($this->_url)) {
-            return $this->_url;
-        }
-        if ($this->ufuUrl) {
-            return $this->_url = $this->ufuUrl->url;
-        }
-        return $this->_url = NULL;
-    }
-
-    /**
-     * @param $value string
-     */
-    public function setUrl($value)
-    {
-        $this->_url = $value;
     }
 
     /**
@@ -327,7 +215,7 @@ class UfuCategory extends ActiveRecord
      */
     public function getName()
     {
-        return $this->ufuCategoryTranslate ? $this->ufuCategoryTranslate->name : '';
+        return empty($this->ufuCategoryTranslate->name) ? Yii::t('ufu-tools', '<i>(has no translation)</i>') : $this->ufuCategoryTranslate->name;
     }
 
     /**
@@ -346,15 +234,19 @@ class UfuCategory extends ActiveRecord
      */
     public function getParentName()
     {
-        return $this->parentUfuCategoryTranslate ? $this->parentUfuCategoryTranslate->name : '';
+        if ($this->parent_id == 0) {
+            return '';
+        }
+        return empty($this->parentUfuCategoryTranslate->name) ? Yii::t('ufu-tools', '<i>(has no translation)</i>') : $this->parentUfuCategoryTranslate->name;
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @inheritdoc
      */
     public function getUfuUrl()
     {
         return $this->hasOne(UfuUrl::className(), ['item_id' => 'id'])
+            ->andOnCondition(['is_category' => 1])
             ->from([self::TABLE_ALIAS_UFU_URL => UfuUrl::tableName()]);
     }
 
@@ -366,14 +258,6 @@ class UfuCategory extends ActiveRecord
         return $this
             ->hasOne(self::className(), ['id' => 'parent_id'])
             ->from([self::TABLE_ALIAS_PARENT_UFU_CATEGORY => self::tableName()]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return '{{%ufu_category}}';
     }
 
     /**
