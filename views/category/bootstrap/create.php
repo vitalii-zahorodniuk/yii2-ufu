@@ -5,7 +5,7 @@ use yii\bootstrap\Html;
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 /* @var $type integer|null */
 
-$this->title = Yii::t('ufu-tools', 'Create Category');
+$this->title = Yii::t('ufu-tools', 'Create category');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Categories'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>

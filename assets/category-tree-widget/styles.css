@@ -24,6 +24,10 @@
     padding-top: 0;
 }
 
+.ctreeview > ul > li:last-child label {
+    margin-bottom: 0;
+}
+
 /*.ctreeview > ul li:hover {*/
 /*background-color: rgba(0, 0, 0, 0.025);*/
 /*}*/

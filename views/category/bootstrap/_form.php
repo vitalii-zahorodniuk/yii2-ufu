@@ -12,14 +12,19 @@ use yii\widgets\ActiveForm;
 if ($model->isNewRecord) {
     $model->is_parent = 1;
 }
+$typeIsSet = $model->isNewRecord && $type;
 ?>
 
 <div class="ufu-category-form">
 
     <?php $form = ActiveForm::begin(['enableAjaxValidation' => TRUE, 'validateOnType' => TRUE]); ?>
 
-    <?php if ($model->isNewRecord && $type): ?>
-        <?= $form->field($model, "type")->hiddenInput(['value' => $type])->label(FALSE) ?>
+    <?php if ($typeIsSet || !$model->canUpdateType): ?>
+        <?= $form->field($model, "type")->hiddenInput(['value' => $typeIsSet ? $type : $model->type])->label(FALSE) ?>
+        <p class="text-info">
+            <strong><?= Html::icon('info-sign') ?> <?= Yii::t('ufu-tools', 'Warning:') ?></strong>
+            <?= Yii::t('ufu-tools', 'Change the type of category you can only for categories without relations, parents and children') ?>
+        </p>
     <?php else: ?>
         <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownCategoryTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
     <?php endif; ?>
@@ -34,7 +39,7 @@ if ($model->isNewRecord) {
                 'name' => Html::getInputName($model, 'parent_id'),
                 'selectedItems' => $model->parent_id,
                 'ignoreItems' => $model->id,
-                'onlyType' => $model->isNewRecord && $type ? $type : $model->type,
+                'onlyType' => $typeIsSet ? $type : $model->type,
             ]) ?>
         </div>
     </div>
@@ -54,15 +59,23 @@ if ($model->isNewRecord) {
 
 <?php
 $this->registerJs(<<<JS
+var ctree = $('#ctree');
+var categoryTreeBlock = $('#categoryTreeBlock');
+var ufucategoryIsParent = $('#ufucategory-is_parent');
+
 $('#ufucategory-type').on('change', function () {
-    $('#ctree').categoryTreeView('showOnlyType', $(this).val());
+    ufucategoryIsParent.prop('checked', true);
+    ctree.find('input').prop('checked', false);
     $('#categoryCommonBlock').slideDown();
+    ctree.categoryTreeView('showOnlyType', $(this).val());
+    categoryTreeBlock.hide();
 });
-$('#ufucategory-is_parent').on('click', function () {
+
+ufucategoryIsParent.on('click', function () {
     if ($(this).is(':checked')) {
-        $('#categoryTreeBlock').slideUp();
+        categoryTreeBlock.slideUp();
     } else {
-        $('#categoryTreeBlock').slideDown();
+        categoryTreeBlock.slideDown();
     }
 });
 JS

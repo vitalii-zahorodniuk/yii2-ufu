@@ -17,6 +17,7 @@ use yii\widgets\Pjax;
 $this->title = Yii::t('ufu-tools', 'Categories');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+
 <div class="ufu-category-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
@@ -24,6 +25,13 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php if ($canAdd): ?>
         <p>
             <?= Html::a(Yii::t('ufu-tools', 'Create Category'), ['create'], ['class' => 'btn btn-success']) ?>
+        </p>
+    <?php endif; ?>
+
+    <?php if ($canDelete): ?>
+        <p class="text-info">
+            <strong><?= Html::icon('info-sign') ?> <?= Yii::t('ufu-tools', 'Warning:') ?></strong>
+            <?= Yii::t('ufu-tools', 'You can delete the category only without relations, parents and children') ?>
         </p>
     <?php endif; ?>
 
@@ -65,6 +73,21 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'name',
                 'format' => 'raw',
             ],
+            [
+                'attribute' => 'relationsCount',
+                'headerOptions' => ['class' => 'col-xs-1 col-sm-1'],
+                'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
+            ],
+            [
+                'attribute' => 'parentsCount',
+                'headerOptions' => ['class' => 'col-xs-1 col-sm-1'],
+                'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
+            ],
+            [
+                'attribute' => 'childrenCount',
+                'headerOptions' => ['class' => 'col-xs-1 col-sm-1'],
+                'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
+            ],
 
             [
                 'class' => ActionColumn::className(),
@@ -74,7 +97,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'template' => '{view} {update} {delete}',
                 'visibleButtons' => [
                     'update' => $canUpdate,
-                    'delete' => $canDelete,
+                    'delete' => function ($model, $key, $index) use ($canDelete) {
+                        /* @var $model UfuCategory */
+                        return $canDelete && $model->canDelete;
+                    },
                 ],
             ],
         ],

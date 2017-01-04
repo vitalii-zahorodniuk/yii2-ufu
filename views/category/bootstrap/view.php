@@ -19,10 +19,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php if ($canUpdate || $canDelete): ?>
         <p>
-            <?php if ($canDelete): ?>
+            <?php if ($canUpdate): ?>
                 <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
             <?php endif; ?>
-            <?php if ($canDelete): ?>
+            <?php if ($canDelete && $model->canDelete): ?>
                 <?= Html::a(Yii::t('ufu-tools', 'Delete'), ['delete', 'id' => $model->id], [
                     'class' => 'btn btn-danger',
                     'data' => [
@@ -34,13 +34,19 @@ $this->params['breadcrumbs'][] = $this->title;
         </p>
     <?php endif; ?>
 
+    <?php if ($canDelete && !$model->canDelete): ?>
+        <p class="text-info">
+            <strong><?= Html::icon('info-sign') ?> <?= Yii::t('ufu-tools', 'Warning:') ?></strong>
+            <?= Yii::t('ufu-tools', 'You can delete the category only without relations, parents and children') ?>
+        </p>
+    <?php endif; ?>
+
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
             'id',
             [
-                'attribute' => 'type',
-                'format' => 'raw',
+                'attribute' => 'typeName',
             ],
             [
                 'attribute' => 'parentName',
@@ -49,6 +55,15 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'name',
                 'format' => 'raw',
+            ],
+            [
+                'attribute' => 'relationsCount',
+            ],
+            [
+                'attribute' => 'parentsCount',
+            ],
+            [
+                'attribute' => 'childrenCount',
             ],
         ],
     ]) ?>

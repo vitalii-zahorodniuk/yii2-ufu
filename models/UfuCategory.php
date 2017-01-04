@@ -26,6 +26,15 @@ use yii\helpers\Json;
  * @property string                 $type
  * @property string                 $url
  *
+ * @property string                 $typeName
+ *
+ * @property integer                $relationsCount
+ * @property integer                $parentsCount
+ * @property integer                $childrenCount
+ *
+ * @property bool                   $canUpdateType
+ * @property bool                   $canDelete
+ *
  * @property integer                $is_parent
  * @property UfuCategoryRelation[]  $ufuCategoryRelations
  * @property UfuCategoryTranslate[] $ufuCategoryTranslates
@@ -44,6 +53,9 @@ class UfuCategory extends UrlActiveRecord
     const TABLE_ALIAS_UFU_URL = 'uu';
 
     public $is_parent;
+
+    private $_canUpdateType;
+    private $_canDelete;
 
     /**
      * @return bool
@@ -106,12 +118,21 @@ class UfuCategory extends UrlActiveRecord
         $itemsTreeList = self::collectItemsIdTree(TRUE);
         // refresh data
         if (isset($itemsTreeList[$this->id])) {
-            foreach (self::findAll(array_merge($itemsTreeList[$this->id]['parents_id_list'], [$this->id], $itemsTreeList[$this->id]['children_id_list'])) as $category) {
+            $categoriesToUpdate = array_unique(
+                array_merge(
+                    [$this->id],
+                    Json::decode($this->oldAttributes['parents_list']),
+                    Json::decode($this->oldAttributes['children_list']),
+                    $itemsTreeList[$this->id]['parents_id_list'],
+                    $itemsTreeList[$this->id]['children_id_list']
+                )
+            );
+            foreach (self::findAll($categoriesToUpdate) as $category) {
                 // Update category
                 $category->parents_list = Json::encode($itemsTreeList[$category->id]['parents_id_list']);
                 $category->children_list = Json::encode($itemsTreeList[$category->id]['children_id_list']);
                 $category->segmentLevel = Json::encode($itemsTreeList[$category->id]['level']);
-                if (in_array($itemsTreeList[$category->id], $itemsTreeList[$this->id]['children_id_list'])) {
+                if (in_array($category->id, $itemsTreeList[$this->id]['children_id_list'])) {
                     $category->type = $this->type;
                 }
                 $category->save(FALSE);
@@ -191,7 +212,67 @@ class UfuCategory extends UrlActiveRecord
             'children_list' => Yii::t('ufu-tools', 'Children List'),
             'created_at' => Yii::t('ufu-tools', 'Created At'),
             'updated_at' => Yii::t('ufu-tools', 'Updated At'),
+            'typeName' => Yii::t('ufu-tools', 'Type'),
+            'relationsCount' => Yii::t('ufu-tools', 'Relations count'),
+            'parentsCount' => Yii::t('ufu-tools', 'Parents count'),
+            'childrenCount' => Yii::t('ufu-tools', 'Children count'),
         ];
+    }
+
+    /**
+     * @return int
+     */
+    public function getTypeName()
+    {
+        return Yii::$app->ufu->getTypeNameById($this->type);
+    }
+
+    /**
+     * @return int
+     */
+    public function getRelationsCount()
+    {
+        return $this->isNewRecord ? 0 : UfuCategoryRelation::find()->where(['category_id' => $this->id])->count('id');
+    }
+
+    /**
+     * @return int
+     */
+    public function getParentsCount()
+    {
+        return count(Json::decode($this->parents_list));
+    }
+
+    /**
+     * @return int
+     */
+    public function getChildrenCount()
+    {
+        return count(Json::decode($this->children_list));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getCanUpdateType()
+    {
+        if (isset($this->_canUpdateType)) {
+            return $this->_canUpdateType;
+        }
+        return $this->_canUpdateType = $this->relationsCount == 0
+            && (empty($this->parents_list) || $this->parents_list == '[]' || $this->parents_list == '{}')
+            && (empty($this->children_list) || $this->children_list == '[]' || $this->children_list == '{}');
+    }
+
+    /**
+     * @return bool
+     */
+    public function getCanDelete()
+    {
+        if (isset($this->_canDelete)) {
+            return $this->_canDelete;
+        }
+        return $this->_canDelete = $this->canUpdateType;
     }
 
     /**
