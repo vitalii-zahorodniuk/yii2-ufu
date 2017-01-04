@@ -4,6 +4,7 @@ namespace xz1mefx\ufu\models;
 use xz1mefx\base\models\traits\CategoryTreeTrait;
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -53,25 +54,11 @@ class UfuCategory extends UrlActiveRecord
     const TABLE_ALIAS_UFU_URL = 'uu';
 
     public $is_parent;
+    public $needToUpdateTree;
 
+    private $_multilangNames;
     private $_canUpdateType;
     private $_canDelete;
-
-    /**
-     * @return bool
-     */
-    public static function checkRecordsExist()
-    {
-        return self::find()->exists();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        parent::init();
-    }
 
     /**
      * @inheritdoc
@@ -90,21 +77,38 @@ class UfuCategory extends UrlActiveRecord
         if ($this->is_parent) {
             $this->parent_id = 0; // to save
         }
+        if ($this->needToUpdateTree) {
+            $this->segmentLevel = ArrayHelper::getValue($this->parent, 'segmentLevel', 0) + 1;
+            // validate translate fields in their models
+            if (isset($this->_multilangNames)) {
+                foreach ($this->_multilangNames as $langId => $name) {
+                    $translateModel = new UfuCategoryTranslate();
+                    $translateModel->name = $name;
+                    if (!$translateModel->validate(['name'])) {
+                        foreach ($translateModel->errors as $error) {
+                            $this->addError("multilangNames[$langId]", $error);
+                        }
+                    }
+                }
+            }
+        }
         return parent::beforeValidate();
     }
 
     /**
      * @inheritdoc
      */
-    public function beforeSave($insert)
+    public function afterDelete()
     {
-        return parent::beforeSave($insert);
+        // update all cached fields in current categories tree
+        $this->updateCategoryTree();
+        parent::afterDelete();
     }
 
     /**
-     *
+     * Update all cached fields in current categories tree
      */
-    public function updateCategoryTree()
+    private function updateCategoryTree()
     {
         // lock tables
         self::lockTables([
@@ -153,6 +157,37 @@ class UfuCategory extends UrlActiveRecord
     /**
      * @inheritdoc
      */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if ($this->needToUpdateTree) {
+            // update category translates
+            if (is_array($this->multilangNames)) {
+                $indexedTranslates = ArrayHelper::index($this->ufuCategoryTranslates, 'language_id');
+                foreach ($this->multilangNames as $langId => $name) {
+                    if (isset($indexedTranslates[$langId])) { // update translate
+                        if ($indexedTranslates[$langId]->name != $name) {
+                            $indexedTranslates[$langId]->name = $name;
+                            $indexedTranslates[$langId]->save();
+                        }
+                    } else { // insert new translate
+                        $translateModel = new UfuCategoryTranslate();
+                        $translateModel->category_id = $this->id;
+                        $translateModel->language_id = $langId;
+                        $translateModel->name = $name;
+                        $translateModel->save();
+                    }
+                }
+            }
+            // update all cached fields in current categories tree
+            $this->updateCategoryTree();
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function behaviors()
     {
         return [
@@ -195,6 +230,10 @@ class UfuCategory extends UrlActiveRecord
             ['url', 'validateUfuUrl'],
             // virtual is_parent field
             ['is_parent', 'safe'],
+            // virtual multilang names fields
+            ['multilangNames', 'safe'],
+            // need to update tree flag
+            ['needToUpdateTree', 'safe'],
         ];
     }
 
@@ -212,19 +251,39 @@ class UfuCategory extends UrlActiveRecord
             'children_list' => Yii::t('ufu-tools', 'Children List'),
             'created_at' => Yii::t('ufu-tools', 'Created At'),
             'updated_at' => Yii::t('ufu-tools', 'Updated At'),
+            'name' => Yii::t('ufu-tools', 'Name'),
             'typeName' => Yii::t('ufu-tools', 'Type'),
             'relationsCount' => Yii::t('ufu-tools', 'Relations count'),
             'parentsCount' => Yii::t('ufu-tools', 'Parents count'),
             'childrenCount' => Yii::t('ufu-tools', 'Children count'),
+            'multilangNames' => Yii::t('ufu-tools', 'Name'),
         ];
     }
 
     /**
-     * @return int
+     * @return array
      */
-    public function getTypeName()
+    public function getMultilangNames()
     {
-        return Yii::$app->ufu->getTypeNameById($this->type);
+        if (isset($this->_multilangNames)) {
+            return $this->_multilangNames;
+        }
+        $this->_multilangNames = [];
+        foreach (Yii::$app->lang->getLangList() as $lang) {
+            $this->_multilangNames[$lang['id']] = ArrayHelper::getValue(
+                ArrayHelper::map($this->ufuCategoryTranslates, 'language_id', 'name'),
+                $lang['id']
+            );
+        }
+        return $this->_multilangNames;
+    }
+
+    /**
+     * @param $value array
+     */
+    public function setMultilangNames($value)
+    {
+        $this->_multilangNames = $value;
     }
 
     /**

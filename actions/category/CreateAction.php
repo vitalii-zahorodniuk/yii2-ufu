@@ -33,7 +33,6 @@ class CreateAction extends BaseAction
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $model->updateCategoryTree();
             Yii::$app->session->setFlash('success', Yii::t('ufu-tools', 'Category created successfully!'));
             return $this->controller->redirect(['index']);
         }

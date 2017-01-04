@@ -17,7 +17,13 @@ $typeIsSet = $model->isNewRecord && $type;
 
 <div class="ufu-category-form">
 
-    <?php $form = ActiveForm::begin(['enableAjaxValidation' => TRUE, 'validateOnType' => TRUE]); ?>
+    <?php $form = ActiveForm::begin([
+        'id' => 'ufuCategoryForm',
+        'enableAjaxValidation' => TRUE,
+        'validateOnType' => TRUE,
+    ]); ?>
+
+    <?= $form->field($model, "needToUpdateTree")->hiddenInput(['value' => 1])->label(FALSE) ?>
 
     <?php if ($typeIsSet || !$model->canUpdateType): ?>
         <?= $form->field($model, "type")->hiddenInput(['value' => $typeIsSet ? $type : $model->type])->label(FALSE) ?>
@@ -46,6 +52,15 @@ $typeIsSet = $model->isNewRecord && $type;
 
     <?= $form->field($model, "url")->widget(UrlInputWidget::className()) ?>
 
+    <h5><strong><?= $model->getAttributeLabel('name') ?></strong></h5>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <?php foreach (Yii::$app->lang->getLangList() as $lang): ?>
+                <?= $form->field($model, "multilangNames[{$lang['id']}]")->textInput()->label($lang['name']) ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
     <div class="form-group">
         <?= Html::submitButton(
             $model->isNewRecord ? Yii::t('ufu-tools', 'Create') : Yii::t('ufu-tools', 'Update'),
@@ -59,11 +74,13 @@ $typeIsSet = $model->isNewRecord && $type;
 
 <?php
 $this->registerJs(<<<JS
+var urlHasBeenUpdated = false;
 var ctree = $('#ctree');
 var categoryTreeBlock = $('#categoryTreeBlock');
 var ufucategoryIsParent = $('#ufucategory-is_parent');
 
 $('#ufucategory-type').on('change', function () {
+    validateUrl();
     ufucategoryIsParent.prop('checked', true);
     ctree.find('input').prop('checked', false);
     $('#categoryCommonBlock').slideDown();
@@ -71,13 +88,27 @@ $('#ufucategory-type').on('change', function () {
     categoryTreeBlock.hide();
 });
 
+ctree.on('click change', 'input', validateUrl);
+
 ufucategoryIsParent.on('click', function () {
+    // ctree.find('input').prop('checked', false);
+    validateUrl();
     if ($(this).is(':checked')) {
         categoryTreeBlock.slideUp();
     } else {
         categoryTreeBlock.slideDown();
     }
 });
+
+$('#ufucategory-url').on('keyup blur', function () {
+    urlHasBeenUpdated = true;
+});
+
+function validateUrl() {
+    if (urlHasBeenUpdated) {
+        $('#ufuCategoryForm').yiiActiveForm('validateAttribute', 'ufucategory-url');
+    }
+}
 JS
 );
 ?>

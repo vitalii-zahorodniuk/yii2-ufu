@@ -77,7 +77,7 @@ class m161223_113345_ufu_init extends Migration
 
         $this->createIndex('ufu_category_translate_category_id_language_id', '{{%ufu_category_translate}}', ['category_id', 'language_id'], TRUE);
         $this->addForeignKey('ufu_category_translate_category_id_fk', '{{%ufu_category_translate}}', 'category_id', '{{%ufu_category}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey('ufu_category_translate_language_id_fk', '{{%ufu_category_translate}}', 'language_id', Language::TABLE_NAME, 'id', 'RESTRICT', 'RESTRICT');
+        $this->addForeignKey('ufu_category_translate_language_id_fk', '{{%ufu_category_translate}}', 'language_id', Language::TABLE_NAME, 'id', 'CASCADE', 'CASCADE');
 
         $this->createTable('{{%ufu_category_relation}}', [
             'id' => $this->primaryKey()->unsigned(),

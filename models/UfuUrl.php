@@ -52,7 +52,7 @@ class UfuUrl extends ActiveRecord
         return [
             [['segment_level', 'is_category', 'type', 'item_id', 'created_at', 'updated_at'], 'integer'],
             [['type', 'item_id', 'url'], 'required'],
-            [['url'], 'string', 'max' => 255],
+            [['url'], 'string', 'min' => 1, 'max' => 255],
             [['full_path_hash'], 'string', 'max' => 32],
             [['segment_level', 'url'], 'unique', 'targetAttribute' => ['segment_level', 'url'], 'message' => 'The combination of Segment Level and Url has already been taken.'],
             [['full_path_hash'], 'unique'],

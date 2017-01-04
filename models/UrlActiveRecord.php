@@ -12,6 +12,8 @@ use Yii;
  * @property string  $type
  * @property string  $url
  *
+ * @property string  $typeName
+ *
  * @property UfuUrl  $ufuUrl
  */
 abstract class UrlActiveRecord extends ActiveRecord
@@ -48,10 +50,6 @@ abstract class UrlActiveRecord extends ActiveRecord
      */
     public function validateUfuUrl($attribute, $params)
     {
-        // string validator
-        if (!is_string($this->{$attribute})) {
-            $this->addError($attribute, Yii::t('ufu-tools', 'URL must be a string'));
-        }
         // url symbols check
         if (preg_match('/[^a-z0-9-]/iu', $this->{$attribute})) {
             $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters and hyphens'));
@@ -104,6 +102,14 @@ abstract class UrlActiveRecord extends ActiveRecord
     public function setType($value)
     {
         $this->_type = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeName()
+    {
+        return Yii::$app->ufu->getTypeNameById($this->type);
     }
 
     /**
