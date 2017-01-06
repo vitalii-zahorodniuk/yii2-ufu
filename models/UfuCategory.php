@@ -98,6 +98,20 @@ class UfuCategory extends UrlActiveRecord
     /**
      * @inheritdoc
      */
+    public function beforeDelete()
+    {
+        if (parent::beforeDelete()) {
+            if ($this->canDelete) {
+                return TRUE;
+            }
+            Yii::$app->session->setFlash('error', Yii::t('ufu-tools', 'You can delete the category only without relations, parents and children'));
+        }
+        return FALSE;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function afterDelete()
     {
         // update all cached fields in current categories tree

@@ -31,8 +31,9 @@ class DeleteAction extends BaseAction
             throw new NotFoundHttpException(Yii::t('ufu-tools', 'The requested category does not exist'));
         }
 
-        $model->delete();
-        Yii::$app->session->setFlash('success', Yii::t('ufu-tools', 'Category deleted successfully!'));
+        if ($model->delete() != FALSE) {
+            Yii::$app->session->setFlash('success', Yii::t('ufu-tools', 'Category deleted successfully!'));
+        }
 
         return $this->controller->redirect(['index']);
     }
