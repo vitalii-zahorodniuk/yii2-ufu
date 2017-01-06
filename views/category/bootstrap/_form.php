@@ -32,7 +32,7 @@ $typeIsSet = $model->isNewRecord && $type;
             <?= Yii::t('ufu-tools', 'Change the type of category you can only for categories without relations, parents and children') ?>
         </p>
     <?php else: ?>
-        <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownCategoryTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
+        <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownUrlTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
     <?php endif; ?>
 
     <div id="categoryCommonBlock" style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">

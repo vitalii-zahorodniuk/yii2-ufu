@@ -52,11 +52,16 @@ abstract class UrlActiveRecord extends ActiveRecord
     {
         // url symbols check
         if (preg_match('/[^a-z0-9-]/iu', $this->{$attribute})) {
-            $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters and hyphens'));
+            $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters, digits and hyphens'));
         }
-        // unique validator
-        if ($this->isNewRecord && UfuUrl::find()->where(['segment_level' => $this->segmentLevel, 'url' => $this->url])->exists()) {
-            $this->addError($attribute, Yii::t('ufu-tools', 'This URL already exists, please enter another URL'));
+        //
+        $url = new UfuUrl();
+        $url->segment_level = $this->segmentLevel;
+        $url->url = $this->url;
+        if (!$url->validate(['segment_level', 'url'])) {
+            foreach ($url->errors as $error) {
+                $this->addError("url", $error);
+            }
         }
     }
 

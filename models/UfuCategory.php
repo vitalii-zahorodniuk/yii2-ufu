@@ -116,6 +116,7 @@ class UfuCategory extends UrlActiveRecord
     {
         // update all cached fields in current categories tree
         $this->updateCategoryTree();
+        // TODO: Delete related url
         parent::afterDelete();
     }
 

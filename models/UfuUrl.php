@@ -54,7 +54,7 @@ class UfuUrl extends ActiveRecord
             [['type', 'item_id', 'url'], 'required'],
             [['url'], 'string', 'min' => 1, 'max' => 255],
             [['full_path_hash'], 'string', 'max' => 32],
-            [['segment_level', 'url'], 'unique', 'targetAttribute' => ['segment_level', 'url'], 'message' => 'The combination of Segment Level and Url has already been taken.'],
+            [['segment_level', 'url'], 'unique', 'targetAttribute' => ['segment_level', 'url'], 'message' => Yii::t('ufu-tools', 'This URL already exists, please enter another URL')],
             [['full_path_hash'], 'unique'],
         ];
     }

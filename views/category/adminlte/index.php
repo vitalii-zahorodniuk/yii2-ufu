@@ -54,7 +54,7 @@ $this->params['title'] = $this->title;
                     ],
                     [
                         'attribute' => 'type',
-                        'filter' => Yii::$app->ufu->getDrDownCategoryTypes(),
+                        'filter' => Yii::$app->ufu->getDrDownUrlTypes(),
                         'content' => function ($model) {
                             /* @var $model UfuCategory */
                             return (Yii::$app->ufu->getTypeNameById($model->type));
