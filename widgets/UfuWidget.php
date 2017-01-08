@@ -1,6 +1,7 @@
 <?php
 namespace xz1mefx\ufu\widgets;
 
+use yii\bootstrap\ActiveForm;
 use yii\bootstrap\Html;
 use yii\bootstrap\Widget;
 use yii\db\ActiveRecord;
@@ -18,10 +19,16 @@ use yii\db\ActiveRecord;
 class UfuWidget extends Widget
 {
 
+    public $label;
+
     public $model;
     public $form;
+
+    public $categoryAttribute = 'categories';
+    public $categoryMultiselect = FALSE;
+    public $urlAttribute = 'url';
     public $type;
-    public $label;
+
 
     /**
      * @inheritdoc
@@ -34,20 +41,30 @@ class UfuWidget extends Widget
 
     public function renderWidget()
     {
+        if (!empty($this->model->errors[$this->categoryAttribute])) {
+            \Yii::$app->session->setFlash('error', $this->model->errors[$this->categoryAttribute]);
+        }
+
+        $categoriesName = Html::getInputName($this->model, $this->categoryAttribute);
+        if ($this->categoryMultiselect && !preg_match('/\[\]$/', $categoriesName)) {
+            $categoriesName .= '[]';
+        }
+
         $content = '';
-        $content .= '<label>';
-        $content .= $this->label ?: \Yii::t('ufu-tools', "Select category");
-        $content .= '</label>';
+        $content .= $this->form->field($this->model, 'type')->hiddenInput(['value' => $this->type])->label(FALSE);
+        $content .= "\n";
+        $content .= Html::label($this->label ?: \Yii::t('ufu-tools', 'Select the category:'));
         $content .= "\n";
         $content .= CategoryTreeWidget::widget([
-            'multiselect' => TRUE,
-            'name' => Html::getInputName($this->model, 'category'),
-//            'selectedItems' => $this->model->ufuCategoryRelations,
+            'multiselect' => $this->categoryMultiselect,
+            'name' => $categoriesName,
+            'selectedItems' => $this->model->{$this->categoryAttribute},
             'onlyType' => $this->type,
         ]);
         $content .= "\n";
-        $content .= $this->form->field($this->model, "url")->widget(UrlInputWidget::className());
+        $content .= $this->form->field($this->model, $this->urlAttribute)->widget(UrlInputWidget::className());
         $content .= "\n";
+
         return $content;
     }
 

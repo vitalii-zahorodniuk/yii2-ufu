@@ -43,7 +43,7 @@ use yii\helpers\Json;
  * @property UfuUrl                 $ufuUrl
  * @property UfuCategory            $parent
  */
-class UfuCategory extends UrlActiveRecord
+class UfuCategory extends UfuActiveRecord
 {
 
     use CategoryTreeTrait;
@@ -130,6 +130,7 @@ class UfuCategory extends UrlActiveRecord
             UfuUrl::tableName(),
             self::TABLE_ALIAS_UFU_URL => UfuUrl::tableName(),
             self::tableName(),
+            UfuCategoryRelation::tableName(),
         ]);
         // clear cached data
         self::resetItemsIdTreeCache();

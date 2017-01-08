@@ -3,30 +3,63 @@ namespace xz1mefx\ufu\models;
 
 use xz1mefx\base\db\ActiveRecord;
 use Yii;
+use yii\db\ActiveQuery;
+use yii\helpers\ArrayHelper;
 
 /**
- * Class UrlActiveRecord
+ * Class UfuActiveRecord
  * @package xz1mefx\ufu\models
  *
- * @property integer $segmentLevel
- * @property string  $type
- * @property string  $url
+ * @property integer               $segmentLevel
+ * @property string                $type
+ * @property string                $url
  *
- * @property string  $typeName
+ * @property string                $typeName
+ * @property array                 $categories
  *
- * @property UfuUrl  $ufuUrl
+ * @property UfuUrl                $ufuUrl
+ * @property UfuCategoryRelation[] $ufuCategoryRelations
  */
-abstract class UrlActiveRecord extends ActiveRecord
+abstract class UfuActiveRecord extends ActiveRecord
 {
 
     private $_segmentLevel;
     private $_type;
     private $_url;
+    private $_categories;
 
     /**
      * @return UfuUrl
      */
     abstract public function getUfuUrl();
+
+    /**
+     * @return UfuCategoryRelation[]
+     */
+    abstract public function getUfuCategoryRelations();
+
+    /**
+     * @param $type
+     *
+     * @return ActiveQuery
+     */
+    public function getUfuUrlByType($type)
+    {
+        return $this->hasOne(UfuUrl::className(), ['item_id' => 'id'])
+            ->andOnCondition(['is_category' => 0, 'type' => $type]);
+    }
+
+    /**
+     * @param $type
+     *
+     * @return ActiveQuery
+     */
+    public function getUfuCategoryRelationsByType($type)
+    {
+        return $this->hasMany(UfuCategoryRelation::className(), ['item_id' => 'id'])
+            ->joinWith('ufuCategory.ufuUrl')
+            ->andOnCondition([UfuCategory::TABLE_ALIAS_UFU_URL . '.type' => $type]);
+    }
 
     /**
      * @inheritdoc
@@ -42,6 +75,24 @@ abstract class UrlActiveRecord extends ActiveRecord
         $url->item_id = $this->id;
         $url->url = $this->url;
         $url->save();
+
+        foreach ($this->categories as $categoryId) {
+            $ufuCategoryRelation = UfuCategoryRelation::find()->where([
+                'category_id' => $categoryId,
+                'item_id' => $this->id,
+            ])->one();
+            if (!$ufuCategoryRelation) {
+                $ufuCategoryRelation = new UfuCategoryRelation();
+                $ufuCategoryRelation->category_id = (int)$categoryId;
+                $ufuCategoryRelation->item_id = $this->id;
+            }
+            $ufuCategoryRelation->save();
+        }
+        foreach ($this->ufuCategoryRelations as $ufuCategoryRelation) {
+            if (!in_array($ufuCategoryRelation->category_id, $this->categories)) {
+                $ufuCategoryRelation->delete();
+            }
+        }
     }
 
     /**
@@ -55,7 +106,7 @@ abstract class UrlActiveRecord extends ActiveRecord
             $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters, digits and hyphens'));
         }
         //
-        $url = new UfuUrl();
+        $url = $this->ufuUrl ?: new UfuUrl();
         $url->segment_level = $this->segmentLevel;
         $url->url = $this->url;
         if (!$url->validate(['segment_level', 'url'])) {
@@ -137,6 +188,28 @@ abstract class UrlActiveRecord extends ActiveRecord
     public function setUrl($value)
     {
         $this->_url = $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCategories()
+    {
+        if (isset($this->_categories)) {
+            return $this->_categories;
+        }
+        if ($this->ufuCategoryRelations) {
+            return $this->_categories = ArrayHelper::getColumn($this->ufuCategoryRelations, 'category_id');
+        }
+        return $this->_categories = [];
+    }
+
+    /**
+     * @param $value int|array
+     */
+    public function setCategories($value)
+    {
+        $this->_categories = is_array($value) ? $value : [$value];
     }
 
 }

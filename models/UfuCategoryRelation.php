@@ -15,7 +15,7 @@ use yii\db\ActiveRecord;
  * @property integer     $created_at
  * @property integer     $updated_at
  *
- * @property UfuCategory $category
+ * @property UfuCategory $ufuCategory
  */
 class UfuCategoryRelation extends ActiveRecord
 {
@@ -52,7 +52,7 @@ class UfuCategoryRelation extends ActiveRecord
             [['category_id', 'item_id'], 'required'],
             [['category_id', 'item_id', 'created_at', 'updated_at'], 'integer'],
             [['category_id', 'item_id'], 'unique', 'targetAttribute' => ['category_id', 'item_id'], 'message' => 'The combination of Category ID and Item ID has already been taken.'],
-            [['category_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => UfuCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
+//            [['category_id'], 'exist', 'skipOnError' => TRUE, 'targetClass' => UfuCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
 
@@ -73,7 +73,7 @@ class UfuCategoryRelation extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCategory()
+    public function getUfuCategory()
     {
         return $this->hasOne(UfuCategory::className(), ['id' => 'category_id']);
     }
