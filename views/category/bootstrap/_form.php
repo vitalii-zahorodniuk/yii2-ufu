@@ -39,7 +39,7 @@ $typeIsSet = $model->isNewRecord && $type;
         <?= $form->field($model, "is_parent")->checkbox() ?>
 
         <div id="categoryTreeBlock" style="display: <?= $model->is_parent ? 'none' : 'block' ?>;">
-            <label><?= $model->attributeLabels()['parent_id'] ?></label>
+            <label><?= Yii::t('ufu-tools', 'Parent category') ?></label>
             <?= CategoryTreeWidget::widget([
                 'multiselect' => FALSE,
                 'name' => Html::getInputName($model, 'parent_id'),
