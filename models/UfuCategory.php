@@ -273,6 +273,7 @@ class UfuCategory extends UfuActiveRecord
             'parentsCount' => Yii::t('ufu-tools', 'Parents count'),
             'childrenCount' => Yii::t('ufu-tools', 'Children count'),
             'multilangNames' => Yii::t('ufu-tools', 'Name'),
+            'parentName' => Yii::t('ufu-tools', 'Parent name'),
         ];
     }
 
