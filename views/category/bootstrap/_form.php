@@ -56,7 +56,7 @@ $typeIsSet = $model->isNewRecord && $type;
     <div class="panel panel-default">
         <div class="panel-body">
             <?php foreach (Yii::$app->lang->getLangList() as $lang): ?>
-                <?= $form->field($model, "multilangNames[{$lang['id']}]")->textInput()->label($lang['name']) ?>
+                <?= $form->field($model, "multilangNames[{$lang['id']}]")->textInput(['placeholder' => Yii::t('ufu-tools', 'Enter a name...', [], $lang['locale'])])->label($lang['name']) ?>
             <?php endforeach; ?>
         </div>
     </div>

@@ -1,6 +1,7 @@
 <?php
 namespace xz1mefx\ufu\widgets;
 
+use Yii;
 use yii\bootstrap\Html;
 use yii\widgets\InputWidget;
 
@@ -25,7 +26,7 @@ class UrlInputWidget extends InputWidget
     public function renderWidget()
     {
         Html::addCssClass($this->options, 'form-control');
-        $options = array_merge(['autocomplete' => 'off'], $this->options);
+        $options = array_merge(['autocomplete' => 'off', 'placeholder' => Yii::t('ufu-tools', 'Enter a URL...')], $this->options);
         $name = isset($options['name']) ? $options['name'] : Html::getInputName($this->model, $this->attribute);
         $value = isset($options['value']) ? $options['value'] : Html::getAttributeValue($this->model, $this->attribute);
         if (!array_key_exists('id', $options)) {

@@ -1,6 +1,7 @@
 <?php
 namespace xz1mefx\ufu\widgets;
 
+use Yii;
 use yii\bootstrap\ActiveForm;
 use yii\bootstrap\Html;
 use yii\bootstrap\Widget;
@@ -53,7 +54,7 @@ class UfuWidget extends Widget
         $content = '';
         $content .= $this->form->field($this->model, 'type')->hiddenInput(['value' => $this->type])->label(FALSE);
         $content .= "\n";
-        $content .= Html::label($this->label ?: \Yii::t('ufu-tools', 'Select the category:'));
+        $content .= Html::label($this->label ?: Yii::t('ufu-tools', 'Select the category:'));
         $content .= "\n";
         $content .= CategoryTreeWidget::widget([
             'multiselect' => $this->categoryMultiselect,
