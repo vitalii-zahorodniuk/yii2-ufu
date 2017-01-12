@@ -45,7 +45,8 @@ class m161223_113345_ufu_init extends Migration
         $this->createIndex('ufu_url_type', '{{%ufu_url}}', 'type');
         $this->createIndex('ufu_url_item_id', '{{%ufu_url}}', 'item_id');
         $this->createIndex('ufu_url_full_path_hash', '{{%ufu_url}}', 'full_path_hash', TRUE);
-        $this->createIndex('ufu_url_segment_level_url', '{{%ufu_url}}', ['segment_level', 'url'], TRUE);
+        $this->createIndex('ufu_url_segment_level', '{{%ufu_url}}', 'segment_level');
+        $this->createIndex('ufu_url_url', '{{%ufu_url}}', 'segment_level');
 
 
         // -------------------------------------------
