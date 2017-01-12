@@ -60,6 +60,11 @@ class UfuUrl extends ActiveRecord
             ['type', 'in', 'range' => Yii::$app->ufu->getTypesIdList()],
             ['url', 'string', 'min' => 1, 'max' => 255],
             ['url', function ($attribute, $params) {
+                // url symbols check
+                if (preg_match('/[^a-z0-9-]/iu', $this->{$attribute})) {
+                    $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters, digits and hyphens'));
+                }
+                // unique check
                 if ($this->segment_level == 1) {
                     $uniqueCheckQuery = self::find()->where(['url' => $this->url, 'segment_level' => 1]);
                 } else {

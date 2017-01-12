@@ -104,10 +104,6 @@ abstract class UfuActiveRecord extends ActiveRecord
      */
     public function validateUfuUrl($attribute, $params)
     {
-        // url symbols check
-        if (preg_match('/[^a-z0-9-]/iu', $this->{$attribute})) {
-            $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters, digits and hyphens'));
-        }
         // validate fields in UfuUrl model
         $url = $this->ufuUrl ?: new UfuUrl();
         $url->segment_level = $this->segmentLevel;
