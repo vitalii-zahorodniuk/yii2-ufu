@@ -11,6 +11,7 @@ use yii\helpers\Json;
  * This is the model class for table "{{%ufu_category}}".
  *
  * @property integer                $id
+ * @property integer                $is_section
  * @property integer                $parent_id
  * @property string                 $parents_list
  * @property string                 $children_list
@@ -223,6 +224,9 @@ class UfuCategory extends UfuActiveRecord
     {
         return [
             // parent id
+            ['is_section', 'integer'],
+            ['is_section', 'default', 'value' => 0],
+            // parent id
             ['parent_id', 'integer'],
             ['parent_id', 'default', 'value' => 0],
             // parents list
@@ -242,7 +246,6 @@ class UfuCategory extends UfuActiveRecord
             ['type', 'in', 'range' => Yii::$app->ufu->getTypesIdList()],
             // virtual url field
             ['url', 'required'],
-            ['url', 'string', 'min' => 1, 'max' => 255],
             ['url', 'validateUfuUrl'],
             // virtual is_parent field
             ['is_parent', 'safe'],
@@ -261,6 +264,7 @@ class UfuCategory extends UfuActiveRecord
         return [
             'id' => Yii::t('ufu-tools', 'ID'),
             'type' => Yii::t('ufu-tools', 'Type'),
+            'is_section' => Yii::t('ufu-tools', 'Is Section'),
             'is_parent' => Yii::t('ufu-tools', 'Is Parent'),
             'parent_id' => Yii::t('ufu-tools', 'Parent ID'),
             'parents_list' => Yii::t('ufu-tools', 'Parents List'),

@@ -4,6 +4,7 @@ namespace xz1mefx\ufu\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\web\BadRequestHttpException;
 
 /**
  * This is the model class for table "{{%ufu_url}}".
@@ -17,9 +18,13 @@ use yii\db\ActiveRecord;
  * @property string  $full_path_hash
  * @property integer $created_at
  * @property integer $updated_at
+ *
+ * @property integer $parent_category_id For validation
  */
 class UfuUrl extends ActiveRecord
 {
+
+    public $parent_category_id;
 
     /**
      * @inheritdoc
@@ -53,9 +58,23 @@ class UfuUrl extends ActiveRecord
             [['segment_level', 'is_category', 'type', 'item_id', 'created_at', 'updated_at'], 'integer'],
             [['type', 'item_id', 'url'], 'required'],
             ['type', 'in', 'range' => Yii::$app->ufu->getTypesIdList()],
-            [['url'], 'string', 'min' => 1, 'max' => 255],
+            ['url', 'string', 'min' => 1, 'max' => 255],
+            ['url', function ($attribute, $params) {
+                if ($this->segment_level == 1) {
+                    $uniqueCheckQuery = self::find()->where(['url' => $this->url, 'segment_level' => 1]);
+                } else {
+                    if (empty($this->parent_category_id)) {
+                        throw new BadRequestHttpException("You must set `parent_category_id` to validate!");
+                    }
+                    $uniqueCheckQuery = UfuCategory::find()->joinWith('ufuUrl')->where([UfuCategory::TABLE_ALIAS_UFU_URL . '.url' => $this->url, 'parent_id' => $this->parent_category_id]);
+                }
+                if ($uniqueCheckQuery->exists()) {
+                    $this->addError($attribute, Yii::t('ufu-tools', 'This URL already exists, please enter another URL'));
+                }
+            }],
             [['full_path_hash'], 'string', 'max' => 32],
             [['full_path_hash'], 'unique'],
+            ['parent_category_id', 'safe'],
         ];
     }
 

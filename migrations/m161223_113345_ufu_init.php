@@ -55,6 +55,7 @@ class m161223_113345_ufu_init extends Migration
 
         $this->createTable('{{%ufu_category}}', [
             'id' => $this->primaryKey()->unsigned(),
+            'is_section' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0),
             'parent_id' => $this->integer()->unsigned()->notNull()->defaultValue(0),
             'parents_list' => $this->text()->notNull(),
             'children_list' => $this->text()->notNull(),

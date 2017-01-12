@@ -4,6 +4,7 @@ use yii\bootstrap\Html;
 /* @var $this yii\web\View */
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 /* @var $type integer|null */
+/* @var $canSetSection boolean */
 
 $this->title = Yii::t('ufu-tools', 'Create category');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('ufu-tools', 'Categories'), 'url' => ['index']];
@@ -17,6 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $this->render('_form', [
         'model' => $model,
         'type' => $type,
+        'canSetSection' => $canSetSection,
     ]) ?>
 
 </div>

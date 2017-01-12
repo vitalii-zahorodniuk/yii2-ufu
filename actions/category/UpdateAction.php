@@ -14,6 +14,8 @@ use yii\web\Response;
  * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
  * @property string  $view  the view name (if need to override)
  *
+ * @property boolean $canSetSection
+ *
  * @property integer $type
  *
  * @package xz1mefx\ufu\actions\category
@@ -49,6 +51,7 @@ class UpdateAction extends BaseAction
             [
                 'model' => $model,
                 'type' => $this->type,
+                'canSetSection' => $this->canSetSection,
             ]
         );
     }

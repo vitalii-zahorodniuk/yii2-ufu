@@ -74,6 +74,9 @@ abstract class UfuActiveRecord extends ActiveRecord
         $url->type = $this->type;
         $url->item_id = $this->id;
         $url->url = $this->url;
+        if ($this instanceof UfuCategory) {
+            $url->parent_category_id = $this->parent_id;
+        }
         $url->save();
 
         foreach ($this->categories as $categoryId) {
@@ -105,17 +108,13 @@ abstract class UfuActiveRecord extends ActiveRecord
         if (preg_match('/[^a-z0-9-]/iu', $this->{$attribute})) {
             $this->addError($attribute, Yii::t('ufu-tools', 'URL must contain only the English characters, digits and hyphens'));
         }
-        // unique url validation
-        $uniqueCheckQuery = $this->segmentLevel == 1 ?
-            UfuUrl::find()->where(['url' => $this->url, 'segment_level' => 1]) :
-            UfuCategory::find()->joinWith('ufuUrl')->where([UfuCategory::TABLE_ALIAS_UFU_URL . '.url' => $this->url, 'parent_id' => $this->parent_id]);
-        if ($uniqueCheckQuery->exists()) {
-            $this->addError("url", Yii::t('ufu-tools', 'This URL already exists, please enter another URL'));
-        }
         // validate fields in UfuUrl model
         $url = $this->ufuUrl ?: new UfuUrl();
         $url->segment_level = $this->segmentLevel;
         $url->url = $this->url;
+        if ($this instanceof UfuCategory) {
+            $url->parent_category_id = $this->parent_id;
+        }
         if (!$url->validate(['segment_level', 'url'])) {
             foreach ($url->errors as $error) {
                 $this->addError("url", $error);

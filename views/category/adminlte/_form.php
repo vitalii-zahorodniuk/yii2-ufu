@@ -8,6 +8,7 @@ use yii\widgets\ActiveForm;
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 /* @var $type integer|null */
 /* @var $form yii\widgets\ActiveForm */
+/* @var $canSetSection boolean */
 
 if ($model->isNewRecord) {
     $model->is_parent = 1;
@@ -34,6 +35,10 @@ $typeIsSet = $model->isNewRecord && $type;
                 </p>
             <?php else: ?>
                 <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownUrlTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
+            <?php endif; ?>
+
+            <?php if ($canSetSection && $model->canUpdateType): ?>
+                <?= $form->field($model, "is_section")->checkbox() ?>
             <?php endif; ?>
 
             <div id="categoryCommonBlock" style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">

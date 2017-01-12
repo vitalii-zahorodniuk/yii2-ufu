@@ -16,6 +16,8 @@ class BaseAction extends Action
     public $theme = self::THEME_BOOTSTRAP;
     public $view = NULL;
 
+    public $canSetSection = FALSE;
+
     /**
      * @var int
      */

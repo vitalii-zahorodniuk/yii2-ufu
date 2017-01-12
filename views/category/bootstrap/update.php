@@ -4,6 +4,7 @@ use yii\bootstrap\Html;
 /* @var $this yii\web\View */
 /* @var $model xz1mefx\ufu\models\UfuCategory */
 /* @var $type integer|null */
+/* @var $canSetSection boolean */
 
 $this->title = Yii::t('ufu-tools', 'Update category:') . ' ' . $model->id;
 
@@ -19,6 +20,7 @@ $this->params['breadcrumbs'][] = Yii::t('ufu-tools', 'Update');
     <?= $this->render('_form', [
         'model' => $model,
         'type' => $type,
+        'canSetSection' => $canSetSection,
     ]) ?>
 
 </div>
