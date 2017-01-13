@@ -69,14 +69,14 @@ abstract class UfuActiveRecord extends ActiveRecord
         parent::afterSave($insert, $changedAttributes);
 
         $url = $this->ufuUrl ?: new UfuUrl();
+        if ($this instanceof UfuCategory) {
+            $url->parent_category_id = $this->parent_id;
+        }
         $url->segment_level = $this->segmentLevel;
         $url->is_category = (int)($this instanceof UfuCategory);
         $url->type = $this->type;
         $url->item_id = $this->id;
         $url->url = $this->url;
-        if ($this instanceof UfuCategory) {
-            $url->parent_category_id = $this->parent_id;
-        }
         $url->save();
 
         foreach ($this->categories as $categoryId) {
@@ -106,11 +106,15 @@ abstract class UfuActiveRecord extends ActiveRecord
     {
         // validate fields in UfuUrl model
         $url = $this->ufuUrl ?: new UfuUrl();
-        $url->segment_level = $this->segmentLevel;
-        $url->url = $this->url;
         if ($this instanceof UfuCategory) {
             $url->parent_category_id = $this->parent_id;
         }
+        $url->segment_level = $this->segmentLevel;
+        $url->type = $this->type;
+        if (!$this->isNewRecord) {
+            $url->item_id = $this->id;
+        }
+        $url->url = $this->url;
         if (!$url->validate(['segment_level', 'url'])) {
             foreach ($url->errors as $error) {
                 $this->addError("url", $error);

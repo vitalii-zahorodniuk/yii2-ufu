@@ -66,13 +66,51 @@ class UfuUrl extends ActiveRecord
                 }
                 // unique check
                 if ($this->segment_level == 1) {
-                    $uniqueCheckQuery = self::find()->where(['url' => $this->url, 'segment_level' => 1]);
+                    $uniqueCheckQuery = self::find()
+                        ->where([
+                            'and',
+                            ['segment_level' => 1],
+                            ['url' => $this->url],
+                        ]);
+                    if ($this->item_id) {
+                        if ($this->is_category) {
+                            $uniqueCheckQuery->andWhere([
+                                'or',
+                                ['is_category' => 0],
+                                [
+                                    'and',
+                                    ['is_category' => 1],
+                                    ['!=', 'item_id', $this->item_id],
+                                ],
+                            ]);
+                        } else {
+                            $uniqueCheckQuery->andWhere([
+                                'or',
+                                ['is_category' => 1],
+                                [
+                                    'and',
+                                    ['is_category' => 0],
+                                    ['!=', 'type', $this->type],
+                                    ['!=', 'item_id', $this->item_id],
+                                ],
+                            ]);
+                        }
+                    }
                 } else {
                     if (empty($this->parent_category_id)) {
                         throw new BadRequestHttpException("You must set `parent_category_id` to validate!");
                     }
-                    $uniqueCheckQuery = UfuCategory::find()->joinWith('ufuUrl')->where([UfuCategory::TABLE_ALIAS_UFU_URL . '.url' => $this->url, 'parent_id' => $this->parent_category_id]);
+                    $uniqueCheckQuery = UfuCategory::find()
+                        ->joinWith('ufuUrl')
+                        ->where([
+                            UfuCategory::TABLE_ALIAS_UFU_URL . '.url' => $this->url,
+                            'parent_id' => $this->parent_category_id,
+                        ]);
+                    if ($this->item_id) {
+                        $uniqueCheckQuery->andWhere(['!=', 'item_id', $this->item_id]);
+                    }
                 }
+//                die($uniqueCheckQuery->createCommand()->rawSql);
                 if ($uniqueCheckQuery->exists()) {
                     $this->addError($attribute, Yii::t('ufu-tools', 'This URL already exists, please enter another URL'));
                 }

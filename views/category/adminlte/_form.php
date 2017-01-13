@@ -37,14 +37,15 @@ $typeIsSet = $model->isNewRecord && $type;
                 <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownUrlTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
             <?php endif; ?>
 
-            <?php if ($canSetSection && $model->canUpdateType): ?>
-                <?= $form->field($model, "is_section")->checkbox() ?>
-            <?php endif; ?>
-
             <div id="categoryCommonBlock" style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">
-                <?= $form->field($model, "is_parent")->checkbox() ?>
+                <?php if ($canSetSection && $model->canUpdateType): ?>
+                    <?= $form->field($model, "is_section")->checkbox() ?>
+                <?php endif; ?>
 
-                <div id="categoryTreeBlock" style="display: <?= $model->is_parent ? 'none' : 'block' ?>;">
+                <?= $form->field($model, "is_parent", ['options' => ['style' => ($model->is_section ? 'display: none;' : '')]])->checkbox() ?>
+
+                <div id="categoryTreeBlock"
+                     style="display: <?= $model->is_parent || $model->is_section ? 'none' : 'block' ?>;">
                     <label><?= Yii::t('ufu-tools', 'Parent category') ?></label>
                     <?= CategoryTreeWidget::widget([
                         'multiselect' => FALSE,
@@ -59,7 +60,7 @@ $typeIsSet = $model->isNewRecord && $type;
             <?= $form->field($model, "url")->widget(UrlInputWidget::className()) ?>
 
             <h5><strong><?= $model->getAttributeLabel('name') ?></strong></h5>
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="background-color: #f6f8fa;">
                 <div class="panel-body">
                     <?php foreach (Yii::$app->lang->getLangList() as $lang): ?>
                         <?= $form->field($model, "multilangNames[{$lang['id']}]")->textInput(['placeholder' => Yii::t('ufu-tools', 'Enter a name...', [], $lang['locale'])])->label($lang['name']) ?>
@@ -84,6 +85,7 @@ $this->registerJs(<<<JS
 var urlHasBeenUpdated = false;
 var ctree = $('#ctree');
 var categoryTreeBlock = $('#categoryTreeBlock');
+var ufucategoryIsSection = $('#ufucategory-is_section');
 var ufucategoryIsParent = $('#ufucategory-is_parent');
 
 $('#ufucategory-type').on('change', function () {
@@ -97,8 +99,18 @@ $('#ufucategory-type').on('change', function () {
 
 ctree.on('click change', 'input', validateUrl);
 
+ufucategoryIsSection.on('click', function () {
+    validateUrl();
+    if ($(this).is(':checked')) {
+        ufucategoryIsParent.prop('checked', true);
+        ufucategoryIsParent.closest('div').slideUp();
+        categoryTreeBlock.slideUp();
+    } else {
+        ufucategoryIsParent.closest('div').slideDown();
+    }
+});
+
 ufucategoryIsParent.on('click', function () {
-    // ctree.find('input').prop('checked', false);
     validateUrl();
     if ($(this).is(':checked')) {
         categoryTreeBlock.slideUp();
