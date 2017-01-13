@@ -37,7 +37,7 @@ class CategoryTreeWidget extends Widget
     /**
      * @var int|array
      */
-    public $selectedItems = [];
+    public $selectedItems = 0;
 
     /**
      * @var int|array
@@ -60,6 +60,11 @@ class CategoryTreeWidget extends Widget
     public $onlyType = NULL;
 
     /**
+     * @var bool
+     */
+    public $disableRoot = FALSE;
+
+    /**
      * @inheritdoc
      */
     public function run()
@@ -73,6 +78,9 @@ class CategoryTreeWidget extends Widget
      */
     public function renderWidget()
     {
+        if (empty($this->selectedItems)) {
+            $this->selectedItems = [0];
+        }
         $widgetOptions = Json::encode([
             'data' => self::collectItemsTree(),
             'emptyLabelText' => $this->emptyLabelText,
@@ -84,6 +92,7 @@ class CategoryTreeWidget extends Widget
             'showSelected' => $this->showSelected,
             'height' => $this->height,
             'onlyType' => ((is_bool($this->onlyType) || $this->onlyType === NULL) ? FALSE : (int)$this->onlyType),
+            'disableRoot' => $this->disableRoot,
         ]);
 
         $this->view->registerJs("$('#ctree').categoryTreeView($widgetOptions);");
@@ -101,6 +110,7 @@ class CategoryTreeWidget extends Widget
                 ->joinWith(['ufuCategoryTranslate', 'ufuUrl'])
                 ->select([
                     UfuCategory::tableName() . '.id',
+                    UfuCategory::tableName() . '.is_section',
                     UfuCategory::tableName() . '.parent_id',
                     UfuCategory::TABLE_ALIAS_UFU_CATEGORY_TRANSLATE . '.name',
                     UfuCategory::TABLE_ALIAS_UFU_URL . '.type',
@@ -112,6 +122,7 @@ class CategoryTreeWidget extends Widget
                 /* @var UfuCategory $element */
                 return [
                     'id' => (int)$element['id'],
+                    'is_section' => (int)$element['is_section'],
                     'parent_id' => (int)$element['parent_id'],
                     'name' => (string)$element['name'],
                     'type' => (int)$element['type'],
@@ -140,11 +151,13 @@ class CategoryTreeWidget extends Widget
 
                 $resCategoriesList[$category['id']] = [
                     'id' => $category['id'],
+                    'is_section' => $category['is_section'],
                     'parent_id' => $category['parent_id'],
                     'parents_id_list' => $preparedParentsIdsList,
                     'name' => $category['name'],
                     'type' => $category['type'],
                 ];
+
                 $res[$category['id']] = $resCategoriesList[$category['id']];
                 $res[$category['id']]['childs'] = self::_collectItemsTreeRecursive($data, $category['id'], $preparedParentsIdsList);
             }

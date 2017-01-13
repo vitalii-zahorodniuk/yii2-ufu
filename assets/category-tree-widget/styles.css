@@ -17,15 +17,11 @@
 
 .ctreeview > ul li {
     list-style-type: none;
-    padding-top: 5px;
 }
 
-.ctreeview > ul > li:first-child {
-    padding-top: 0;
-}
-
-.ctreeview > ul > li:last-child label {
-    margin-bottom: 0;
+.ctreeview label {
+    margin-top: 3px;
+    margin-bottom: 3px;
 }
 
 /*.ctreeview > ul li:hover {*/

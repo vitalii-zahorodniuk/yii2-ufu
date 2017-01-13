@@ -37,24 +37,22 @@ $typeIsSet = $model->isNewRecord && $type;
                 <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownUrlTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
             <?php endif; ?>
 
-            <div id="categoryCommonBlock" style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">
-                <?php if ($canSetSection && $model->canUpdateType): ?>
+            <?php if ($canSetSection && $model->canUpdateType): ?>
+                <div id="categorySectionBlock"
+                     style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">
                     <?= $form->field($model, "is_section")->checkbox() ?>
-                <?php endif; ?>
-
-                <?= $form->field($model, "is_parent", ['options' => ['style' => ($model->is_section ? 'display: none;' : '')]])->checkbox() ?>
-
-                <div id="categoryTreeBlock"
-                     style="display: <?= $model->is_parent || $model->is_section ? 'none' : 'block' ?>;">
-                    <label><?= Yii::t('ufu-tools', 'Parent category') ?></label>
-                    <?= CategoryTreeWidget::widget([
-                        'multiselect' => FALSE,
-                        'name' => Html::getInputName($model, 'parent_id'),
-                        'selectedItems' => $model->parent_id,
-                        'ignoreItems' => $model->id,
-                        'onlyType' => $typeIsSet ? $type : $model->type,
-                    ]) ?>
                 </div>
+            <?php endif; ?>
+
+            <div id="categoryTreeBlock" style="display: <?= ($model->isNewRecord && !$type) ? 'none' : 'block' ?>;">
+                <label><?= Yii::t('ufu-tools', 'Parent category') ?></label>
+                <?= CategoryTreeWidget::widget([
+                    'multiselect' => FALSE,
+                    'name' => Html::getInputName($model, 'parent_id'),
+                    'selectedItems' => $model->parent_id,
+                    'ignoreItems' => $model->id,
+                    'onlyType' => $typeIsSet ? $type : $model->type,
+                ]) ?>
             </div>
 
             <?= $form->field($model, "url")->widget(UrlInputWidget::className()) ?>
@@ -83,35 +81,34 @@ $typeIsSet = $model->isNewRecord && $type;
 <?php
 $this->registerJs(<<<JS
 var urlHasBeenUpdated = false;
+var ufuCategoryForm = $('#ufuCategoryForm');
+var ufuCategoryType = $('#ufucategory-type');
 var ctree = $('#ctree');
-var categoryTreeBlock = $('#categoryTreeBlock');
 var ufucategoryIsSection = $('#ufucategory-is_section');
-var ufucategoryIsParent = $('#ufucategory-is_parent');
+var categorySectionBlock = $('#categorySectionBlock');
+var categoryTreeBlock = $('#categoryTreeBlock');
+var ufuCategoryUrl = $('#ufucategory-url');
 
-$('#ufucategory-type').on('change', function () {
+ufuCategoryType.on('change', function () {
     validateUrl();
-    ufucategoryIsParent.prop('checked', true);
-    ctree.find('input').prop('checked', false);
-    $('#categoryCommonBlock').slideDown();
-    ctree.categoryTreeView('showOnlyType', $(this).val());
-    categoryTreeBlock.hide();
+        ctree.find('input').prop('checked', false);
+        ctree.find('input[value="0"]').prop('checked', true);
+    if ($(this).val()) {
+        categorySectionBlock.slideDown();
+        ctree.categoryTreeView('showOnlyType', $(this).val());
+        categoryTreeBlock.slideDown();
+    }
+    else {
+        categorySectionBlock.slideUp();
+        categoryTreeBlock.slideUp();
+    }
 });
 
 ctree.on('click change', 'input', validateUrl);
 
 ufucategoryIsSection.on('click', function () {
     validateUrl();
-    if ($(this).is(':checked')) {
-        ufucategoryIsParent.prop('checked', true);
-        ufucategoryIsParent.closest('div').slideUp();
-        categoryTreeBlock.slideUp();
-    } else {
-        ufucategoryIsParent.closest('div').slideDown();
-    }
-});
-
-ufucategoryIsParent.on('click', function () {
-    validateUrl();
+        ctree.find('input[value="0"]').prop('checked', true);
     if ($(this).is(':checked')) {
         categoryTreeBlock.slideUp();
     } else {
@@ -119,13 +116,13 @@ ufucategoryIsParent.on('click', function () {
     }
 });
 
-$('#ufucategory-url').on('keyup blur', function () {
+ufuCategoryUrl.on('keyup blur', function () {
     urlHasBeenUpdated = true;
 });
 
 function validateUrl() {
     if (urlHasBeenUpdated) {
-        $('#ufuCategoryForm').yiiActiveForm('validateAttribute', 'ufucategory-url');
+        ufuCategoryForm.yiiActiveForm('validateAttribute', 'ufucategory-url');
     }
 }
 JS

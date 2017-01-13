@@ -14,6 +14,8 @@
                 'showSelected': true,
                 'height': 'auto',
                 'onlyType': false,
+                'rootLabelText': "Root",
+                'disableRoot': false,
             }, options);
             return this.each(make);
         },
@@ -75,15 +77,27 @@
         });
 
         if (parentId === 0) {
-            if (items.length === 0) {
-                return settings.emptyDataText;
+            var content = "";
+            content += "<div class=\"ctreeview\" style=\"max-height: " + settings.height + ";\">\n";
+            content += "<ul>\n";
+            content += "<li data-id=\"0\">\n";
+            content += "<label class=\"ctreeview-item-label\">";
+            if (settings.multiselect) {
+                content += "<input type=\"checkbox\" name=\"" + settings.name + "\" value=\"0\"" + ($.inArray(0, settings.selectedItems) > -1 ? ' checked' : '') + (settings.disableRoot ? " class=\"disabled\" disabled" : "") + ">";
+            } else {
+                content += "<input type=\"radio\" name=\"" + settings.name + "\" value=\"0\"" + ($.inArray(0, settings.selectedItems) > -1 ? ' checked' : '') + (settings.disableRoot ? " class=\"disabled\" disabled" : "") + ">";
             }
-            return "<div class=\"ctreeview\" style=\"max-height: " + settings.height + ";\">\n<ul>\n" + items + "</ul>\n</div>\n";
+            content += settings.rootLabelText;
+            content += "</label>\n";
+            content += "</li>\n";
+            content += "<li>\n";
+            content += "<ul>\n" + items + "</ul>\n";
+            content += "</li>\n";
+            content += "</ul>\n";
+            content += "</div>\n";
+            return content;
         }
-        if (items.length === 0) {
-            return '';
-        }
-        return "<ul class=\"ctreeview-child\">\n" + items + "</ul>\n";
+        return items.length === 0 ? '' : "<ul class=\"ctreeview-child\">\n" + items + "</ul>\n";
     }
 
     var make = function () {
