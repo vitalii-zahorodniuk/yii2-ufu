@@ -42,7 +42,7 @@ class ViewAction extends BaseAction
         }
 
         if ($model->is_section && !$this->canSetSection) {
-            throw new ForbiddenHttpException();
+            throw new ForbiddenHttpException(Yii::t('ufu-tools', 'You have insufficient privileges!'));
         }
 
         return $this->controller->render(

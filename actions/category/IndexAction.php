@@ -11,6 +11,8 @@ use Yii;
  * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
  * @property string  $view  the view name (if need to override)
  *
+ * @property boolean $canSetSection
+ *
  * @property integer $type
  *
  * @property bool    $canAdd
@@ -34,6 +36,9 @@ class IndexAction extends BaseAction
         $searchModel = new UfuCategorySearch();
         if (is_int($this->type)) {
             $searchModel->type = $this->type;
+        }
+        if (!$this->canSetSection) {
+            $searchModel->is_section = 0;
         }
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 

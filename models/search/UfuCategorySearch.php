@@ -17,6 +17,7 @@ use yii\data\ActiveDataProvider;
 class UfuCategorySearch extends UfuCategory
 {
 
+//    public $is_section;
     public $parentName;
     public $name;
 
@@ -26,7 +27,7 @@ class UfuCategorySearch extends UfuCategory
     public function rules()
     {
         return [
-            [['id', 'type', 'parent_id', 'created_at', 'updated_at'], 'integer'],
+            [['id', 'is_section', 'type', 'parent_id', 'created_at', 'updated_at'], 'integer'],
             [['parentName', 'name', 'parents_list', 'children_list'], 'safe'],
         ];
     }
@@ -88,6 +89,7 @@ class UfuCategorySearch extends UfuCategory
         // grid filtering conditions
         $query->andFilterWhere([
             UfuCategory::tableName() . '.id' => $this->id,
+            UfuCategory::tableName() . '.is_section' => $this->is_section,
             self::TABLE_ALIAS_UFU_URL . '.type' => $this->type,
             UfuCategory::tableName() . '.parent_id' => $this->parent_id,
             UfuCategory::tableName() . '.created_at' => $this->created_at,

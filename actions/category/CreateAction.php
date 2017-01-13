@@ -34,9 +34,13 @@ class CreateAction extends BaseAction
             return ActiveForm::validate($model);
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', Yii::t('ufu-tools', 'Category created successfully!'));
-            return $this->controller->redirect(['index']);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->is_section && !$this->canSetSection) {
+                Yii::$app->session->setFlash('error', Yii::t('ufu-tools', 'You have insufficient privileges!'));
+            } elseif ($model->save()) {
+                Yii::$app->session->setFlash('success', Yii::t('ufu-tools', 'Category created successfully!'));
+                return $this->controller->redirect(['index']);
+            }
         }
 
         return $this->controller->render(

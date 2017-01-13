@@ -5,6 +5,7 @@ use xz1mefx\ufu\actions\BaseAction;
 use xz1mefx\ufu\models\UfuCategory;
 use Yii;
 use yii\bootstrap\ActiveForm;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -37,7 +38,7 @@ class UpdateAction extends BaseAction
         }
 
         if ($model->is_section && !$this->canSetSection) {
-            throw new ForbiddenHttpException();
+            throw new ForbiddenHttpException(Yii::t('ufu-tools', 'You have insufficient privileges!'));
         }
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {

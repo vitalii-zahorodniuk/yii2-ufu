@@ -49,6 +49,11 @@ $this->params['title'] = $this->title;
                 'columns' => [
                     ['class' => SerialColumn::className()],
 
+//                    [
+//                        'attribute' => 'id',
+//                        'headerOptions' => ['class' => 'col-xs-1 col-sm-1'],
+//                        'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
+//                    ],
                     [
                         'attribute' => 'is_section',
                         'filter' => FALSE,
@@ -60,12 +65,6 @@ $this->params['title'] = $this->title;
                         'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
                         'visible' => $canSetSection,
                     ],
-
-                    [
-                        'attribute' => 'id',
-                        'headerOptions' => ['class' => 'col-xs-1 col-sm-1'],
-                        'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
-                    ],
                     [
                         'attribute' => 'type',
                         'filter' => Yii::$app->ufu->getDrDownUrlTypes(),
@@ -75,21 +74,16 @@ $this->params['title'] = $this->title;
                         },
                         'visible' => !$type,
                     ],
-//            [
-//                'label' => Yii::t('ufu-tools', 'Is main category'),
-//                'content' => function ($model) {
-//                    /* @var $model UfuCategory */
-//                    return $model->parent_id == 0 ? Html::icon('ok') : '';
-//                },
-//                'headerOptions' => ['class' => 'text-center col-xs-1 col-sm-1'],
-//                'contentOptions' => ['class' => 'text-center col-xs-1 col-sm-1'],
-//            ],
                     [
                         'attribute' => 'parentName',
                         'format' => 'raw',
                     ],
                     [
                         'attribute' => 'name',
+                        'format' => 'raw',
+                    ],
+                    [
+                        'attribute' => 'url',
                         'format' => 'raw',
                     ],
                     [
