@@ -4,6 +4,7 @@ namespace xz1mefx\ufu\actions\category;
 use xz1mefx\ufu\actions\BaseAction;
 use xz1mefx\ufu\models\UfuCategory;
 use Yii;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -11,6 +12,8 @@ use yii\web\NotFoundHttpException;
  *
  * @property string  $theme it can be IndexAction::THEME_BOOTSTRAP or IndexAction::THEME_ADMINLTE
  * @property string  $view  the view name (if need to override)
+ *
+ * @property boolean $canSetSection
  *
  * @property bool    $canUpdate
  * @property bool    $canDelete
@@ -38,6 +41,10 @@ class ViewAction extends BaseAction
             throw new NotFoundHttpException(Yii::t('ufu-tools', 'The requested category does not exist'));
         }
 
+        if ($model->is_section && !$this->canSetSection) {
+            throw new ForbiddenHttpException();
+        }
+
         return $this->controller->render(
             $this->view ?: "@vendor/xz1mefx/yii2-ufu/views/category/{$this->theme}/view",
             [
@@ -45,6 +52,7 @@ class ViewAction extends BaseAction
                 'type' => $this->type,
                 'canUpdate' => $this->canUpdate,
                 'canDelete' => $this->canDelete,
+                'canSetSection' => $this->canSetSection,
             ]
         );
     }

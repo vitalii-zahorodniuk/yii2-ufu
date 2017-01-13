@@ -46,6 +46,7 @@ class IndexAction extends BaseAction
                 'canAdd' => $this->canAdd,
                 'canUpdate' => $this->canUpdate,
                 'canDelete' => $this->canDelete,
+                'canSetSection' => $this->canSetSection,
             ]
         );
     }

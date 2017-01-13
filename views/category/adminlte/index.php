@@ -13,6 +13,7 @@ use yii\widgets\Pjax;
 /* @var $canAdd bool */
 /* @var $canUpdate bool */
 /* @var $canDelete bool */
+/* @var $canSetSection boolean */
 
 $this->title = Yii::t('ufu-tools', 'Categories');
 
@@ -42,10 +43,23 @@ $this->params['title'] = $this->title;
         <div class="box-body-overflow">
             <?php Pjax::begin(); ?>
             <?= GridView::widget([
+                'tableOptions' => ['class' => 'table table-striped table-bordered table-hover'],
                 'dataProvider' => $dataProvider,
                 'filterModel' => $searchModel,
                 'columns' => [
                     ['class' => SerialColumn::className()],
+
+                    [
+                        'attribute' => 'is_section',
+                        'filter' => FALSE,
+                        'content' => function ($model) {
+                            /* @var $model UfuCategory */
+                            return $model->is_section ? Html::icon('ok') : '';
+                        },
+                        'headerOptions' => ['class' => 'col-xs-1 col-sm-1'],
+                        'contentOptions' => ['class' => 'col-xs-1 col-sm-1'],
+                        'visible' => $canSetSection,
+                    ],
 
                     [
                         'attribute' => 'id',

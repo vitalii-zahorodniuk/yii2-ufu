@@ -36,6 +36,10 @@ class UpdateAction extends BaseAction
             throw new NotFoundHttpException(Yii::t('ufu-tools', 'The requested category does not exist'));
         }
 
+        if ($model->is_section && !$this->canSetSection) {
+            throw new ForbiddenHttpException();
+        }
+
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);

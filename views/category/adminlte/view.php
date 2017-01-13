@@ -7,6 +7,7 @@ use yii\widgets\DetailView;
 /* @var $type integer|null */
 /* @var $canUpdate bool */
 /* @var $canDelete bool */
+/* @var $canSetSection boolean */
 
 $this->title = $model->id;
 
