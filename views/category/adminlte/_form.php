@@ -89,7 +89,7 @@ var categoryTreeBlock = $('#categoryTreeBlock');
 var ufuCategoryUrl = $('#ufucategory-url');
 
 ufuCategoryType.on('change', function () {
-    validateUrl();
+    customValidation();
     ctree.find('input').prop('checked', false);
     ctree.find('input[value="0"]').prop('checked', true);
     if ($(this).val()) {
@@ -103,10 +103,10 @@ ufuCategoryType.on('change', function () {
     }
 });
 
-ctree.on('click change', 'input', validateUrl);
+ctree.on('click change', 'input', customValidation);
 
 ufucategoryIsSection.on('click', function () {
-    validateUrl();
+    customValidation();
     ctree.find('input[value="0"]').prop('checked', true);
     if ($(this).is(':checked')) {
         categoryTreeBlock.slideUp();
@@ -119,7 +119,8 @@ ufuCategoryUrl.on('keyup blur', function () {
     urlHasBeenUpdated = true;
 });
 
-function validateUrl() {
+function customValidation() {
+    ufuCategoryForm.yiiActiveForm('validateAttribute', 'ufucategory-ctree_error');
     if (urlHasBeenUpdated || ufuCategoryUrl.val().length) {
         ufuCategoryForm.yiiActiveForm('validateAttribute', 'ufucategory-url');
     }
