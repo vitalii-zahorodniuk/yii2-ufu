@@ -37,7 +37,6 @@ use yii\helpers\Json;
  * @property bool                   $canUpdateType
  * @property bool                   $canDelete
  *
- * @property integer                $is_parent
  * @property UfuCategoryRelation[]  $ufuCategoryRelations
  * @property UfuCategoryTranslate[] $ufuCategoryTranslates
  * @property UfuUrl                 $ufuUrl
@@ -53,8 +52,8 @@ class UfuCategory extends UfuActiveRecord
     const TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE = 'puct';
     const TABLE_ALIAS_UFU_URL = 'uu';
 
-    public $is_parent;
     public $needToUpdateTree;
+    public $ctree_error;
 
     private $_multilangNames;
     private $_canUpdateType;
@@ -63,20 +62,8 @@ class UfuCategory extends UfuActiveRecord
     /**
      * @inheritdoc
      */
-    public function afterFind()
-    {
-        $this->is_parent = (int)($this->parent_id == 0 || $this->isNewRecord);
-        parent::afterFind();
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function beforeValidate()
     {
-        if ($this->is_parent) {
-            $this->parent_id = 0; // to save
-        }
         if ($this->needToUpdateTree) {
             $this->segmentLevel = ArrayHelper::getValue($this->parent, 'segmentLevel', 0) + 1;
             // validate translate fields in their models
@@ -245,14 +232,26 @@ class UfuCategory extends UfuActiveRecord
             ['parent_id', 'integer'],
             ['parent_id', 'default', 'value' => 0],
             ['parent_id', function ($attribute, $params) {
-                if ($this->{$attribute} > 0) {
+                if ($this->{$attribute} == 0) {
+                    if (
+                    UfuCategory::find()
+                        ->joinWith('ufuUrl')
+                        ->where([
+                            'is_section' => 1,
+                            self::TABLE_ALIAS_UFU_URL . '.type' => $this->type,
+                        ])
+                        ->exists()
+                    ) {
+                        $this->addError('ctree_error', Yii::t('ufu-tools', 'You cannot save parent category because current category type have category sections!'));
+                    }
+                } else {
                     $parent = UfuCategory::findOne($this->{$attribute});
                     if ($parent) {
-                        Yii::$app->session->setFlash('error', Yii::t('ufu-tools', 'Type of parent category is different!'));
-                        $this->addError($attribute, Yii::t('ufu-tools', 'Type of parent category is different!'));
+                        if ($parent->type != $this->type) {
+                            $this->addError('ctree_error', Yii::t('ufu-tools', 'Type of parent category is different!'));
+                        }
                     } else {
-                        Yii::$app->session->setFlash('error', Yii::t('ufu-tools', 'Parent category is not exist'));
-                        $this->addError($attribute, Yii::t('ufu-tools', 'Parent category is not exist'));
+                        $this->addError('ctree_error', Yii::t('ufu-tools', 'Parent category is not exist'));
                     }
                 }
             }],
@@ -274,12 +273,12 @@ class UfuCategory extends UfuActiveRecord
             // virtual url field
             ['url', 'required'],
             ['url', 'validateUfuUrl'],
-            // virtual is_parent field
-            ['is_parent', 'safe'],
             // virtual multilang names fields
             ['multilangNames', 'safe'],
             // need to update tree flag
             ['needToUpdateTree', 'safe'],
+            // category tree errors output
+            ['ctree_error', 'safe'],
         ];
     }
 
@@ -292,7 +291,6 @@ class UfuCategory extends UfuActiveRecord
             'id' => Yii::t('ufu-tools', 'ID'),
             'type' => Yii::t('ufu-tools', 'Type'),
             'is_section' => Yii::t('ufu-tools', 'Is Section'),
-            'is_parent' => Yii::t('ufu-tools', 'Is Parent'),
             'parent_id' => Yii::t('ufu-tools', 'Parent ID'),
             'parents_list' => Yii::t('ufu-tools', 'Parents List'),
             'children_list' => Yii::t('ufu-tools', 'Children List'),

@@ -10,9 +10,6 @@ use yii\widgets\ActiveForm;
 /* @var $form yii\widgets\ActiveForm */
 /* @var $canSetSection boolean */
 
-if ($model->isNewRecord) {
-    $model->is_parent = 1;
-}
 $typeIsSet = $model->isNewRecord && $type;
 ?>
 
@@ -39,12 +36,13 @@ $typeIsSet = $model->isNewRecord && $type;
 
             <?php if ($canSetSection && $model->canUpdateType): ?>
                 <div id="categorySectionBlock"
-                     style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">
+                     style="display: <?= ($model->isNewRecord && !($type || $model->type)) ? 'none' : 'block' ?>;">
                     <?= $form->field($model, "is_section")->checkbox() ?>
                 </div>
             <?php endif; ?>
 
-            <div id="categoryTreeBlock" style="display: <?= ($model->isNewRecord && !$type) ? 'none' : 'block' ?>;">
+            <div id="categoryTreeBlock"
+                 style="display: <?= ($model->is_section || ($model->isNewRecord && !($type || $model->type))) ? 'none' : 'block' ?>;">
                 <label><?= Yii::t('ufu-tools', 'Parent category') ?></label>
                 <?= CategoryTreeWidget::widget([
                     'multiselect' => FALSE,
@@ -53,6 +51,7 @@ $typeIsSet = $model->isNewRecord && $type;
                     'ignoreItems' => $model->id,
                     'onlyType' => $typeIsSet ? $type : $model->type,
                 ]) ?>
+                <?= $form->field($model, "ctree_error", ['options' => ['class' => 'form-group', 'style' => 'margin-top: -15px;']])->hiddenInput()->label(FALSE) ?>
             </div>
 
             <?= $form->field($model, "url")->widget(UrlInputWidget::className()) ?>
