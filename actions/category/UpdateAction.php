@@ -27,7 +27,8 @@ class UpdateAction extends BaseAction
     /**
      * @param $id
      *
-     * @return string
+     * @return array|string|Response
+     * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      */
     public function run($id)

@@ -40,7 +40,6 @@ use yii\helpers\Json;
  * @property integer                $is_parent
  * @property UfuCategoryRelation[]  $ufuCategoryRelations
  * @property UfuCategoryTranslate[] $ufuCategoryTranslates
- * @property MlLanguage[]           $languages
  * @property UfuUrl                 $ufuUrl
  * @property UfuCategory            $parent
  */
@@ -226,9 +225,37 @@ class UfuCategory extends UfuActiveRecord
             // parent id
             ['is_section', 'integer'],
             ['is_section', 'default', 'value' => 0],
+            ['is_section', function ($attribute, $params) {
+                if (
+                    $this->{$attribute} == 1
+                    &&
+                    UfuCategory::find()
+                        ->joinWith('ufuUrl')
+                        ->where([
+                            $attribute => 0,
+                            'parent_id' => 0,
+                            self::TABLE_ALIAS_UFU_URL . '.type' => $this->type,
+                        ])
+                        ->exists()
+                ) {
+                    $this->addError($attribute, Yii::t('ufu-tools', 'In current category type simple categories already exists!'));
+                }
+            }],
             // parent id
             ['parent_id', 'integer'],
             ['parent_id', 'default', 'value' => 0],
+            ['parent_id', function ($attribute, $params) {
+                if ($this->{$attribute} > 0) {
+                    $parent = UfuCategory::findOne($this->{$attribute});
+                    if ($parent) {
+                        Yii::$app->session->setFlash('error', Yii::t('ufu-tools', 'Type of parent category is different!'));
+                        $this->addError($attribute, Yii::t('ufu-tools', 'Type of parent category is different!'));
+                    } else {
+                        Yii::$app->session->setFlash('error', Yii::t('ufu-tools', 'Parent category is not exist'));
+                        $this->addError($attribute, Yii::t('ufu-tools', 'Parent category is not exist'));
+                    }
+                }
+            }],
             // parents list
             ['parents_list', 'string'],
             ['parents_list', 'default', 'value' => '[]'],
@@ -430,16 +457,6 @@ class UfuCategory extends UfuActiveRecord
     public function getUfuCategoryTranslates()
     {
         return $this->hasMany(UfuCategoryTranslate::className(), ['category_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getLanguages()
-    {
-        return $this
-            ->hasMany(MlLanguage::className(), ['id' => 'language_id'])
-            ->viaTable(UfuCategoryTranslate::tableName(), ['category_id' => 'id']);
     }
 
 }

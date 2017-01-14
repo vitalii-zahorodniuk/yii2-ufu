@@ -6,7 +6,6 @@
             settings = $.extend({
                 'data': {},
                 'emptyLabelText': "<i>(noname)</i>",
-                'emptyDataText': "<i>(no data)</i>",
                 'multiselect': true,
                 'name': '',
                 'selectedItems': [],
