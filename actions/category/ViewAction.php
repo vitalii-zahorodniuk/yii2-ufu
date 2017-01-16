@@ -32,6 +32,7 @@ class ViewAction extends BaseAction
      * @param $id
      *
      * @return string
+     * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      */
     public function run($id)

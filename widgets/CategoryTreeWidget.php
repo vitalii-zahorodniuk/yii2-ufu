@@ -3,6 +3,7 @@ namespace xz1mefx\ufu\widgets;
 
 use xz1mefx\ufu\models\UfuCategory;
 use xz1mefx\ufu\web\assets\CategoryTreeWidgetAsset;
+use Yii;
 use yii\bootstrap\Widget;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
@@ -55,9 +56,9 @@ class CategoryTreeWidget extends Widget
     public $onlyType = NULL;
 
     /**
-     * @var bool
+     * @var string
      */
-    public $disableRoot = FALSE;
+    public $rootLabelText = '';
 
     /**
      * @inheritdoc
@@ -76,6 +77,9 @@ class CategoryTreeWidget extends Widget
         if (empty($this->selectedItems)) {
             $this->selectedItems = [0];
         }
+        if (empty($this->rootLabelText)) {
+            $this->rootLabelText = Yii::t('ufu-tools', 'The root of the site');
+        }
         $widgetOptions = Json::encode([
             'data' => self::collectItemsTree(),
             'emptyLabelText' => $this->emptyLabelText,
@@ -86,7 +90,7 @@ class CategoryTreeWidget extends Widget
             'showSelected' => $this->showSelected,
             'height' => $this->height,
             'onlyType' => ((is_bool($this->onlyType) || $this->onlyType === NULL) ? FALSE : (int)$this->onlyType),
-            'disableRoot' => $this->disableRoot,
+            'rootLabelText' => $this->rootLabelText,
         ]);
 
         $this->view->registerJs("$('#ctree').categoryTreeView($widgetOptions);");

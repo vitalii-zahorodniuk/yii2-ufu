@@ -24,21 +24,31 @@ $typeIsSet = $model->isNewRecord && $type;
 
             <?= $form->field($model, "needToUpdateTree")->hiddenInput(['value' => 1])->label(FALSE) ?>
 
+            <?= $form->field($model, "type")
+                ->dropDownList(
+                    Yii::$app->ufu->getDrDownUrlTypes(),
+                    [
+                        'prompt' => Yii::t('ufu-tools', 'Select type...'),
+                        'disabled' => ($typeIsSet || !$model->canUpdateType),
+                    ])
+            ?>
+
             <?php if ($typeIsSet || !$model->canUpdateType): ?>
-                <?= $form->field($model, "type")->hiddenInput(['value' => $typeIsSet ? $type : $model->type])->label(FALSE) ?>
+                <?= $form->field($model, "type")->hiddenInput()->label(FALSE) /* default value for disabled type form field */ ?>
                 <p class="text-info">
                     <strong><?= Html::icon('info-sign') ?> <?= Yii::t('ufu-tools', 'Warning:') ?></strong>
                     <?= Yii::t('ufu-tools', 'Change the type of category you can only for categories without relations, parents and children') ?>
                 </p>
-            <?php else: ?>
-                <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownUrlTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
             <?php endif; ?>
 
-            <?php if ($canSetSection && $model->canUpdateType): ?>
+            <?php if ($canSetSection): ?>
                 <div id="categorySectionBlock"
                      style="display: <?= ($model->isNewRecord && !($type || $model->type)) ? 'none' : 'block' ?>;">
-                    <?= $form->field($model, "is_section")->checkbox() ?>
+                    <?= $form->field($model, "is_section")->checkbox(['disabled' => !$model->canUpdateType]) ?>
                 </div>
+                <?php if (!$model->canUpdateType): ?>
+                    <?= $form->field($model, "is_section")->hiddenInput()->label(FALSE) /* default value for disabled is_section form field */ ?>
+                <?php endif; ?>
             <?php endif; ?>
 
             <div id="categoryTreeBlock"

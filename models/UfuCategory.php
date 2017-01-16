@@ -58,6 +58,7 @@ class UfuCategory extends UfuActiveRecord
     private $_multilangNames;
     private $_canUpdateType;
     private $_canDelete;
+    private $_relationsCount;
 
     /**
      * @inheritdoc
@@ -234,13 +235,15 @@ class UfuCategory extends UfuActiveRecord
             ['parent_id', function ($attribute, $params) {
                 if ($this->{$attribute} == 0) {
                     if (
-                    UfuCategory::find()
-                        ->joinWith('ufuUrl')
-                        ->where([
-                            'is_section' => 1,
-                            self::TABLE_ALIAS_UFU_URL . '.type' => $this->type,
-                        ])
-                        ->exists()
+                        $this->is_section == 0
+                        &&
+                        UfuCategory::find()
+                            ->joinWith('ufuUrl')
+                            ->where([
+                                'is_section' => 1,
+                                self::TABLE_ALIAS_UFU_URL . '.type' => $this->type,
+                            ])
+                            ->exists()
                     ) {
                         $this->addError('ctree_error', Yii::t('ufu-tools', 'You cannot save parent category because current category type have category sections!'));
                     }
@@ -337,7 +340,10 @@ class UfuCategory extends UfuActiveRecord
      */
     public function getRelationsCount()
     {
-        return $this->isNewRecord ? 0 : UfuCategoryRelation::find()->where(['category_id' => $this->id])->count('id');
+        if ($this->_relationsCount === NULL) {
+            return $this->_relationsCount = ($this->isNewRecord ? 0 : UfuCategoryRelation::find()->where(['category_id' => $this->id])->count('id'));
+        }
+        return $this->_relationsCount;
     }
 
     /**

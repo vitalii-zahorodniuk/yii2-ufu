@@ -13,8 +13,7 @@
                 'showSelected': true,
                 'height': 'auto',
                 'onlyType': false,
-                'rootLabelText': "Root",
-                'disableRoot': false,
+                'rootLabelText': "The root of the site",
             }, options);
             return this.each(make);
         },
@@ -76,16 +75,24 @@
         });
 
         if (parentId === 0) {
+            var rootDisabled = false;
+            if (settings.onlyType !== false) {
+                $.each(dataList, function (key, value) {
+                    if (settings.onlyType === value.type && $.inArray(value.id, settings.ignoreItems) === -1) {
+                        if (value.is_section === 1) {
+                            rootDisabled = true;
+                            return true;
+                        }
+                    }
+                });
+            }
+
             var content = "";
             content += "<div class=\"ctreeview\" style=\"max-height: " + settings.height + ";\">\n";
             content += "<ul>\n";
             content += "<li data-id=\"0\">\n";
             content += "<label class=\"ctreeview-item-label\">";
-            if (settings.multiselect) {
-                content += "<input type=\"checkbox\" name=\"" + settings.name + "\" value=\"0\"" + ($.inArray(0, settings.selectedItems) > -1 ? ' checked' : '') + (settings.disableRoot ? " class=\"disabled\" disabled" : "") + ">";
-            } else {
-                content += "<input type=\"radio\" name=\"" + settings.name + "\" value=\"0\"" + ($.inArray(0, settings.selectedItems) > -1 ? ' checked' : '') + (settings.disableRoot ? " class=\"disabled\" disabled" : "") + ">";
-            }
+            content += "<input type=\"" + (settings.multiselect ? "checkbox" : "radio") + "\" name=\"" + settings.name + "\" value=\"0\"" + (!rootDisabled && $.inArray(0, settings.selectedItems) > -1 ? ' checked' : '') + (rootDisabled ? " class=\"disabled\" disabled" : "") + ">";
             content += settings.rootLabelText;
             content += "</label>\n";
             content += "</li>\n";
