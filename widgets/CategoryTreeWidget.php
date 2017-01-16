@@ -61,6 +61,11 @@ class CategoryTreeWidget extends Widget
     public $rootLabelText = '';
 
     /**
+     * @var bool
+     */
+    public $disableRoot = NULL;
+
+    /**
      * @inheritdoc
      */
     public function run()
@@ -91,6 +96,7 @@ class CategoryTreeWidget extends Widget
             'height' => $this->height,
             'onlyType' => ((is_bool($this->onlyType) || $this->onlyType === NULL) ? FALSE : (int)$this->onlyType),
             'rootLabelText' => $this->rootLabelText,
+            'disableRoot' => ($this->disableRoot === NULL ? FALSE : $this->disableRoot),
         ]);
 
         $this->view->registerJs("$('#ctree').categoryTreeView($widgetOptions);");

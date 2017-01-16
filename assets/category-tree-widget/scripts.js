@@ -14,6 +14,7 @@
                 'height': 'auto',
                 'onlyType': false,
                 'rootLabelText': "The root of the site",
+                'disableRoot': false,
             }, options);
             return this.each(make);
         },
@@ -75,8 +76,8 @@
         });
 
         if (parentId === 0) {
-            var rootDisabled = false;
-            if (settings.onlyType !== false) {
+            var rootDisabled = settings.disableRoot;
+            if (!rootDisabled && settings.onlyType !== false) {
                 $.each(dataList, function (key, value) {
                     if (settings.onlyType === value.type && $.inArray(value.id, settings.ignoreItems) === -1) {
                         if (value.is_section === 1) {

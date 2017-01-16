@@ -29,6 +29,7 @@ class UfuWidget extends Widget
     public $categoryMultiselect = FALSE;
     public $urlAttribute = 'url';
     public $type;
+    public $disableRoot = TRUE;
 
 
     /**
@@ -36,7 +37,6 @@ class UfuWidget extends Widget
      */
     public function run()
     {
-
         return $this->renderWidget();
     }
 
@@ -61,6 +61,7 @@ class UfuWidget extends Widget
             'name' => $categoriesName,
             'selectedItems' => $this->model->{$this->categoryAttribute},
             'onlyType' => $this->type,
+            'disableRoot' => $this->disableRoot,
         ]);
         $content .= "\n";
         $content .= $this->form->field($this->model, $this->urlAttribute)->widget(UrlInputWidget::className());
