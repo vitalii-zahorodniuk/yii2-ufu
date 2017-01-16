@@ -15,6 +15,7 @@
                 'onlyType': false,
                 'rootLabelText': "The root of the site",
                 'disableRoot': false,
+                'disableSections': false,
             }, options);
             return this.each(make);
         },
@@ -57,18 +58,18 @@
             ) {
                 var childs = renderTreeRecursive(value.childs, value.id);
                 var hasNoChilds = childs.length === 0;
-                var isChecked = $.inArray(value.id, settings.selectedItems) > -1;
+                var isChecked = !settings.disableSections && $.inArray(value.id, settings.selectedItems) > -1;
+
+                if (hasNoChilds && settings.disableSections && value.is_section === 1) {
+                    return;
+                }
 
                 items += "<li data-id=\"" + value.id + "\" data-type=\"" + value.type + "\">\n";
                 items += "<span data-enable=\"" + hasNoChilds + "\" class=\"ctreeview-nochevron\" style=\"display: " + (hasNoChilds ? 'inline' : 'none') + ";\"></span>";
                 items += "<span data-enable=\"" + !hasNoChilds + "\" class=\"glyphicon glyphicon-chevron-right\" style=\"display: " + (hasNoChilds ? 'none' : 'inline') + ";\"></span>";
                 items += "<span data-enable=\"" + !hasNoChilds + "\" class=\"glyphicon glyphicon-chevron-down\"></span>"; // it's hidden by default in css
                 items += "<label class=\"ctreeview-item-label\">";
-                if (settings.multiselect) {
-                    items += "<input type=\"checkbox\" name=\"" + settings.name + "\" value=\"" + value.id + "\"" + (isChecked ? ' checked' : '') + ">";
-                } else {
-                    items += "<input type=\"radio\" name=\"" + settings.name + "\" value=\"" + value.id + "\"" + (isChecked ? ' checked' : '') + ">";
-                }
+                items += "<input type=\"" + (settings.multiselect ? "checkbox" : "radio") + "\" name=\"" + settings.name + "\" value=\"" + value.id + "\"" + (isChecked ? ' checked' : '') + (settings.disableSections && value.is_section === 1 ? " class=\"disabled\" disabled" : "") + ">";
                 items += (value.name.length ? value.name : settings.emptyLabelText) + "</label>\n";
                 items += childs;
                 items += "</li>\n";

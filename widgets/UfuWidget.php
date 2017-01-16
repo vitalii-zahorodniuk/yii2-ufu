@@ -30,7 +30,7 @@ class UfuWidget extends Widget
     public $urlAttribute = 'url';
     public $type;
     public $disableRoot = TRUE;
-
+    public $disableSections = TRUE;
 
     /**
      * @inheritdoc
@@ -62,6 +62,7 @@ class UfuWidget extends Widget
             'selectedItems' => $this->model->{$this->categoryAttribute},
             'onlyType' => $this->type,
             'disableRoot' => $this->disableRoot,
+            'disableSections' => $this->disableSections,
         ]);
         $content .= "\n";
         $content .= $this->form->field($this->model, $this->urlAttribute)->widget(UrlInputWidget::className());
