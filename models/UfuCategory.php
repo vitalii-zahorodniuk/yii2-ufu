@@ -104,7 +104,11 @@ class UfuCategory extends UfuActiveRecord
     {
         // update all cached fields in current categories tree
         $this->updateCategoryTree();
-        // TODO: Delete related url
+        // delete related url
+        UfuUrl::deleteAll([
+            'is_category' => 1,
+            'item_id' => $this->id,
+        ]);
         parent::afterDelete();
     }
 
