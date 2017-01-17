@@ -13,6 +13,8 @@ use yii\helpers\ArrayHelper;
  * @property integer               $segmentLevel
  * @property string                $type
  * @property string                $url
+ * @property string                $fullPath
+ * @property string                $fullPathHash
  *
  * @property string                $typeName
  * @property array                 $categories
@@ -26,6 +28,8 @@ abstract class UfuActiveRecord extends ActiveRecord
     private $_segmentLevel;
     private $_type;
     private $_url;
+    private $_fullPath;
+    private $_fullPathHash;
     private $_categories;
 
     /**
@@ -71,6 +75,9 @@ abstract class UfuActiveRecord extends ActiveRecord
         $url = $this->ufuUrl ?: new UfuUrl();
         if ($this instanceof UfuCategory) {
             $url->parent_category_id = $this->parent_id;
+            $url->full_path = $this->fullPath;
+        } else {
+            $url->full_path = $this->url;
         }
         $url->segment_level = $this->segmentLevel;
         $url->is_category = (int)($this instanceof UfuCategory);
@@ -79,21 +86,23 @@ abstract class UfuActiveRecord extends ActiveRecord
         $url->url = $this->url;
         $url->save();
 
-        foreach ($this->categories as $categoryId) {
-            $ufuCategoryRelation = UfuCategoryRelation::find()->where([
-                'category_id' => $categoryId,
-                'item_id' => $this->id,
-            ])->one();
-            if (!$ufuCategoryRelation) {
-                $ufuCategoryRelation = new UfuCategoryRelation();
-                $ufuCategoryRelation->category_id = (int)$categoryId;
-                $ufuCategoryRelation->item_id = $this->id;
+        if (!($this instanceof UfuCategory)) {
+            foreach ($this->categories as $categoryId) {
+                $ufuCategoryRelation = UfuCategoryRelation::find()->where([
+                    'category_id' => $categoryId,
+                    'item_id' => $this->id,
+                ])->one();
+                if (!$ufuCategoryRelation) {
+                    $ufuCategoryRelation = new UfuCategoryRelation();
+                    $ufuCategoryRelation->category_id = (int)$categoryId;
+                    $ufuCategoryRelation->item_id = $this->id;
+                }
+                $ufuCategoryRelation->save();
             }
-            $ufuCategoryRelation->save();
-        }
-        foreach ($this->ufuCategoryRelations as $ufuCategoryRelation) {
-            if (!in_array($ufuCategoryRelation->category_id, $this->categories)) {
-                $ufuCategoryRelation->delete();
+            foreach ($this->ufuCategoryRelations as $ufuCategoryRelation) {
+                if (!in_array($ufuCategoryRelation->category_id, $this->categories)) {
+                    $ufuCategoryRelation->delete();
+                }
             }
         }
     }
@@ -164,6 +173,50 @@ abstract class UfuActiveRecord extends ActiveRecord
     public function setType($value)
     {
         $this->_type = $value;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFullPath()
+    {
+        if (isset($this->_fullPath)) {
+            return $this->_fullPath;
+        }
+        if ($this->ufuUrl) {
+            return $this->_fullPath = $this->ufuUrl->full_path;
+        }
+        return $this->_fullPath = NULL;
+    }
+
+    /**
+     * @param $value string
+     */
+    public function setFullPath($value)
+    {
+        $this->_fullPath = $value;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFullPathHash()
+    {
+        if (isset($this->_fullPathHash)) {
+            return $this->_fullPathHash;
+        }
+        if ($this->ufuUrl) {
+            return $this->_fullPathHash = $this->ufuUrl->full_path_hash;
+        }
+        return $this->_fullPathHash = NULL;
+    }
+
+    /**
+     * @param $value string
+     */
+    public function setFullPathHash($value)
+    {
+        $this->_fullPathHash = $value;
     }
 
     /**

@@ -1,7 +1,10 @@
 <?php
 namespace xz1mefx\ufu\models;
 
-use xz1mefx\base\models\traits\CategoryTreeTrait;
+use xz1mefx\multilang\models\Language;
+use xz1mefx\multilang\models\Message;
+use xz1mefx\multilang\models\SourceMessage;
+use xz1mefx\ufu\models\traits\CategoryTreeTrait;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
@@ -119,10 +122,15 @@ class UfuCategory extends UfuActiveRecord
     {
         // lock tables
         self::lockTables([
-            UfuUrl::tableName(),
-            self::TABLE_ALIAS_UFU_URL => UfuUrl::tableName(),
             self::tableName(),
             UfuCategoryRelation::tableName(),
+            UfuCategoryTranslate::tableName(),
+            self::TABLE_ALIAS_PARENT_UFU_CATEGORY_TRANSLATE => UfuCategoryTranslate::tableName(),
+            UfuUrl::tableName(),
+            self::TABLE_ALIAS_UFU_URL => UfuUrl::tableName(),
+            Language::tableName(),
+            Message::tableName(),
+            SourceMessage::tableName(),
         ]);
         // clear cached data
         self::resetItemsIdTreeCache();
@@ -139,13 +147,21 @@ class UfuCategory extends UfuActiveRecord
                     $itemsTreeList[$this->id]['children_id_list']
                 )
             );
-            foreach (self::findAll($categoriesToUpdate) as $category) {
+            $categoriesToUrlUpdate = array_unique(
+                array_merge(
+                    [$this->id],
+                    Json::decode($this->oldAttributes['children_list']),
+                    $itemsTreeList[$this->id]['children_id_list']
+                )
+            );
+            foreach (self::find()->joinWith('ufuUrl')->where([self::tableName() . '.id' => $categoriesToUpdate])->all() as $category) {
                 // Update category
                 $category->parents_list = Json::encode($itemsTreeList[$category->id]['parents_id_list']);
                 $category->children_list = Json::encode($itemsTreeList[$category->id]['children_id_list']);
-                $category->segmentLevel = Json::encode($itemsTreeList[$category->id]['level']);
-                if (in_array($category->id, $itemsTreeList[$this->id]['children_id_list'])) {
+                $category->segmentLevel = $itemsTreeList[$category->id]['level'];
+                if (in_array($category->id, $categoriesToUrlUpdate)) {
                     $category->type = $this->type;
+                    $category->fullPath = $itemsTreeList[$category->id]['full_path'];
                 }
                 $category->save(FALSE);
             }

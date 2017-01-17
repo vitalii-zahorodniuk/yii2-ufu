@@ -15,6 +15,7 @@ use yii\web\BadRequestHttpException;
  * @property integer $type
  * @property integer $item_id
  * @property string  $url
+ * @property string  $full_path
  * @property string  $full_path_hash
  * @property integer $created_at
  * @property integer $updated_at
@@ -47,6 +48,17 @@ class UfuUrl extends ActiveRecord
                 'value' => time(),
             ],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeValidate()
+    {
+        if (!empty($this->full_path)) {
+            $this->full_path_hash = md5($this->full_path);
+        }
+        return parent::beforeValidate();
     }
 
     /**
@@ -115,8 +127,9 @@ class UfuUrl extends ActiveRecord
                     $this->addError($attribute, Yii::t('ufu-tools', 'This URL already exists, please enter another URL'));
                 }
             }],
-            [['full_path_hash'], 'string', 'max' => 32],
+            [['full_path'], 'string'],
             [['full_path_hash'], 'unique'],
+            [['full_path_hash'], 'string', 'max' => 32],
             ['parent_category_id', 'safe'],
         ];
     }
@@ -133,6 +146,7 @@ class UfuUrl extends ActiveRecord
             'type' => Yii::t('ufu-tools', 'Type'),
             'item_id' => Yii::t('ufu-tools', 'Item ID'),
             'url' => Yii::t('ufu-tools', 'Url'),
+            'full_path' => Yii::t('ufu-tools', 'Full Path'),
             'full_path_hash' => Yii::t('ufu-tools', 'Full Path Hash'),
             'created_at' => Yii::t('ufu-tools', 'Created At'),
             'updated_at' => Yii::t('ufu-tools', 'Updated At'),

@@ -58,7 +58,7 @@
             ) {
                 var childs = renderTreeRecursive(value.childs, value.id);
                 var hasNoChilds = childs.length === 0;
-                var isChecked = !settings.disableSections && $.inArray(value.id, settings.selectedItems) > -1;
+                var isChecked = $.inArray(value.id, settings.selectedItems) > -1;
 
                 if (hasNoChilds && settings.disableSections && value.is_section === 1) {
                     return;
