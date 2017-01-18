@@ -13,33 +13,46 @@ class UFU extends Component
 
     public $urlTypes = [];
 
+    private $_indexedUrlTypes = [];
+    private $_typesIdList = [];
+
+    public function init()
+    {
+        parent::init();
+        $this->_indexedUrlTypes = ArrayHelper::index($this->urlTypes, 'id');
+    }
+
     /**
      * @return array
      */
-    public function getTypesIdList()
+    public function getTypesList()
     {
-        return ArrayHelper::getColumn($this->urlTypes, 'id');
+        return $this->_indexedUrlTypes;
     }
 
     /**
      * @param $id
      *
-     * @return string|null
+     * @return mixed
      */
-    public function getTypeNameById($id)
+    public function getTypeById($id, $key = NULL)
     {
-        return ArrayHelper::getValue(ArrayHelper::map($this->urlTypes, 'id', 'name'), $id);
+        if ($key) {
+            return ArrayHelper::getValue(ArrayHelper::getValue($this->_indexedUrlTypes, $id), $key);
+        }
+        return ArrayHelper::getValue($this->_indexedUrlTypes, $id);
     }
 
-//    /**
-//     * @param $name
-//     *
-//     * @return int|null
-//     */
-//    public function getTypeIdByName($name)
-//    {
-//        return ArrayHelper::getValue(ArrayHelper::map($this->urlTypes, 'name', 'id'), $name);
-//    }
+    /**
+     * @return array
+     */
+    public function getTypesIdList()
+    {
+        if ($this->_typesIdList) {
+            return $this->_typesIdList;
+        }
+        return $this->_typesIdList = array_keys($this->_indexedUrlTypes, 'id');
+    }
 
     /**
      * @param bool $translated
@@ -51,6 +64,17 @@ class UFU extends Component
         return ArrayHelper::map($this->urlTypes, 'id', $translated ? function ($element) {
             return \Yii::t('ufu-tools', "Type \"{$element['name']}\"");
         } : 'name');
+    }
+
+    /**
+     * @param      $id
+     * @param bool $translated
+     *
+     * @return null|string
+     */
+    public function getTypeNameById($id, $translated = TRUE)
+    {
+        return ArrayHelper::getValue($this->getDrDownUrlTypes($translated), $id);
     }
 
 }

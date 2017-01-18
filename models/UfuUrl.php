@@ -56,7 +56,7 @@ class UfuUrl extends ActiveRecord
     public function beforeValidate()
     {
         if (!empty($this->full_path)) {
-            $this->full_path_hash = md5($this->full_path);
+            $this->full_path_hash = md5(trim($this->full_path, '/'));
         }
         return parent::beforeValidate();
     }
@@ -151,6 +151,20 @@ class UfuUrl extends ActiveRecord
             'created_at' => Yii::t('ufu-tools', 'Created At'),
             'updated_at' => Yii::t('ufu-tools', 'Updated At'),
         ];
+    }
+
+    /**
+     * @param $pathInfo string
+     *
+     * @return null|UfuUrl
+     */
+    public static function findByPathInfo($pathInfo)
+    {
+        $trimmedPathInfo = trim($pathInfo, '/');
+        if (empty($trimmedPathInfo)) {
+            return NULL;
+        }
+        return self::find()->where(['full_path_hash' => md5($trimmedPathInfo)])->one();
     }
 
 }
