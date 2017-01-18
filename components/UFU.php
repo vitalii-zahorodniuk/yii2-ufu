@@ -51,7 +51,7 @@ class UFU extends Component
         if ($this->_typesIdList) {
             return $this->_typesIdList;
         }
-        return $this->_typesIdList = array_keys($this->_indexedUrlTypes, 'id');
+        return $this->_typesIdList = array_keys($this->_indexedUrlTypes);
     }
 
     /**
