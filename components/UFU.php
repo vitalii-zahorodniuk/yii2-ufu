@@ -13,34 +13,28 @@ class UFU extends Component
 
     public $urlTypes = [];
 
-    private $_indexedUrlTypes = [];
-    private $_typesIdList = [];
-
-    public function init()
-    {
-        parent::init();
-        $this->_indexedUrlTypes = ArrayHelper::index($this->urlTypes, 'id');
-    }
-
     /**
+     * @param string $indexBy
+     *
      * @return array
      */
-    public function getTypesList()
+    public function getTypesList($indexBy = 'id')
     {
-        return $this->_indexedUrlTypes;
+        return ArrayHelper::index($this->urlTypes, $indexBy);
     }
 
     /**
-     * @param $id
+     * @param      $id
+     * @param null $key
      *
      * @return mixed
      */
     public function getTypeById($id, $key = NULL)
     {
         if ($key) {
-            return ArrayHelper::getValue(ArrayHelper::getValue($this->_indexedUrlTypes, $id), $key);
+            return ArrayHelper::getValue(ArrayHelper::getValue($this->getTypesList(), $id), $key);
         }
-        return ArrayHelper::getValue($this->_indexedUrlTypes, $id);
+        return ArrayHelper::getValue($this->getTypesList(), $id);
     }
 
     /**
@@ -48,10 +42,7 @@ class UFU extends Component
      */
     public function getTypesIdList()
     {
-        if ($this->_typesIdList) {
-            return $this->_typesIdList;
-        }
-        return $this->_typesIdList = array_keys($this->_indexedUrlTypes);
+        return array_keys($this->getTypesList());
     }
 
     /**

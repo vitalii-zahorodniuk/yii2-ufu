@@ -2,6 +2,7 @@
 namespace xz1mefx\ufu\web;
 
 use xz1mefx\multilang\web\UrlManager;
+use xz1mefx\ufu\models\UfuCategory;
 use xz1mefx\ufu\models\UfuUrl;
 use Yii;
 use yii\base\Object;
@@ -26,12 +27,23 @@ class UfuUrlRule extends Object implements UrlRuleInterface
      */
     public function createUrl($manager, $route, $params)
     {
-        return FALSE;
         if (isset($params['id'])) {
-            $routesList = array_merge(Yii::$app->ufu->getTypeById($urlModel->type, 'itemRoute'), Yii::$app->ufu->getTypeById($urlModel->type, 'categoryRoute'));
-            if (in_array($route, $routesList)) {
+            $model = NULL;
+            $urlTypes = Yii::$app->ufu->getTypesList('categoryRoute');
+            if (isset($urlTypes[$route])) {
+                $model = UfuCategory::findOne($params['id']);
+            } else {
+                $urlTypes = Yii::$app->ufu->getTypesList('itemRoute');
+                if (isset($urlTypes[$route]['model'])) {
+                    $model = $urlTypes[$route]['model']::findOne($params['id']);
+                }
+            }
+            if ($model) {
+                return trim($model->fullPath, '/') . $manager->suffix;
             }
         }
+
+        return FALSE;
     }
 
     /**
