@@ -25,34 +25,44 @@ $typeIsSet = $model->isNewRecord && $type;
 
     <?= $form->field($model, "needToUpdateTree")->hiddenInput(['value' => 1])->label(FALSE) ?>
 
+    <?= $form->field($model, "type")
+        ->dropDownList(
+            Yii::$app->ufu->getDrDownUrlTypes(),
+            [
+                'prompt' => Yii::t('ufu-tools', 'Select type...'),
+                'disabled' => ($typeIsSet || !$model->canUpdateType),
+            ])
+    ?>
+
     <?php if ($typeIsSet || !$model->canUpdateType): ?>
-        <?= $form->field($model, "type")->hiddenInput(['value' => $typeIsSet ? $type : $model->type])->label(FALSE) ?>
+        <?= $form->field($model, "type")->hiddenInput()->label(FALSE) /* default value for disabled type form field */ ?>
         <p class="text-info">
             <strong><?= Html::icon('info-sign') ?> <?= Yii::t('ufu-tools', 'Warning:') ?></strong>
             <?= Yii::t('ufu-tools', 'Change the type of category you can only for categories without relations, parents and children') ?>
         </p>
-    <?php else: ?>
-        <?= $form->field($model, "type")->dropDownList(Yii::$app->ufu->getDrDownUrlTypes(), ['prompt' => Yii::t('ufu-tools', 'Select type...')]) ?>
     <?php endif; ?>
 
-    <div id="categoryCommonBlock" style="display: <?= $model->isNewRecord && !$type ? 'none' : 'block' ?>;">
-        <?php if ($canSetSection && $model->canUpdateType): ?>
-            <?= $form->field($model, "is_section")->checkbox() ?>
-        <?php endif; ?>
-
-        <?= $form->field($model, "is_parent", ['options' => ['style' => ($model->is_section ? 'display: none;' : '')]])->checkbox() ?>
-
-        <div id="categoryTreeBlock"
-             style="display: <?= $model->is_parent || $model->is_section ? 'none' : 'block' ?>;">
-            <label><?= Yii::t('ufu-tools', 'Parent category') ?></label>
-            <?= CategoryTreeWidget::widget([
-                'multiselect' => FALSE,
-                'name' => Html::getInputName($model, 'parent_id'),
-                'selectedItems' => $model->parent_id,
-                'ignoreItems' => $model->id,
-                'onlyType' => $typeIsSet ? $type : $model->type,
-            ]) ?>
+    <?php if ($canSetSection): ?>
+        <div id="categorySectionBlock"
+             style="display: <?= ($model->isNewRecord && !($type || $model->type)) ? 'none' : 'block' ?>;">
+            <?= $form->field($model, "is_section")->checkbox(['disabled' => !$model->canUpdateType]) ?>
         </div>
+        <?php if (!$model->canUpdateType): ?>
+            <?= $form->field($model, "is_section")->hiddenInput()->label(FALSE) /* default value for disabled is_section form field */ ?>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <div id="categoryTreeBlock"
+         style="display: <?= ($model->is_section || ($model->isNewRecord && !($type || $model->type))) ? 'none' : 'block' ?>;">
+        <label><?= Yii::t('ufu-tools', 'Parent category') ?></label>
+        <?= CategoryTreeWidget::widget([
+            'multiselect' => FALSE,
+            'name' => Html::getInputName($model, 'parent_id'),
+            'selectedItems' => $model->parent_id,
+            'ignoreItems' => $model->id,
+            'onlyType' => $typeIsSet ? $type : $model->type,
+        ]) ?>
+        <?= $form->field($model, "ctree_error", ['options' => ['class' => 'form-group', 'style' => 'margin-top: -15px;']])->hiddenInput()->label(FALSE) ?>
     </div>
 
     <?= $form->field($model, "url")->widget(UrlInputWidget::className()) ?>
@@ -79,35 +89,34 @@ $typeIsSet = $model->isNewRecord && $type;
 <?php
 $this->registerJs(<<<JS
 var urlHasBeenUpdated = false;
+var ufuCategoryForm = $('#ufuCategoryForm');
+var ufuCategoryType = $('#ufucategory-type');
 var ctree = $('#ctree');
-var categoryTreeBlock = $('#categoryTreeBlock');
 var ufucategoryIsSection = $('#ufucategory-is_section');
-var ufucategoryIsParent = $('#ufucategory-is_parent');
+var categorySectionBlock = $('#categorySectionBlock');
+var categoryTreeBlock = $('#categoryTreeBlock');
+var ufuCategoryUrl = $('#ufucategory-url');
 
-$('#ufucategory-type').on('change', function () {
-    validateUrl();
-    ufucategoryIsParent.prop('checked', true);
+ufuCategoryType.on('change', function () {
+    customValidation();
     ctree.find('input').prop('checked', false);
-    $('#categoryCommonBlock').slideDown();
-    ctree.categoryTreeView('showOnlyType', $(this).val());
-    categoryTreeBlock.hide();
-});
-
-ctree.on('click change', 'input', validateUrl);
-
-ufucategoryIsSection.on('click', function () {
-    validateUrl();
-    if ($(this).is(':checked')) {
-        ufucategoryIsParent.prop('checked', true);
-        ufucategoryIsParent.closest('div').slideUp();
+    ctree.find('input[value="0"]').prop('checked', true);
+    if ($(this).val()) {
+        categorySectionBlock.slideDown();
+        ctree.categoryTreeView('showOnlyType', $(this).val());
+        categoryTreeBlock.slideDown();
+    }
+    else {
+        categorySectionBlock.slideUp();
         categoryTreeBlock.slideUp();
-    } else {
-        ufucategoryIsParent.closest('div').slideDown();
     }
 });
 
-ufucategoryIsParent.on('click', function () {
-    validateUrl();
+ctree.on('click change', 'input', customValidation);
+
+ufucategoryIsSection.on('click', function () {
+    customValidation();
+    ctree.find('input[value="0"]').prop('checked', true);
     if ($(this).is(':checked')) {
         categoryTreeBlock.slideUp();
     } else {
@@ -115,13 +124,14 @@ ufucategoryIsParent.on('click', function () {
     }
 });
 
-$('#ufucategory-url').on('keyup blur', function () {
+ufuCategoryUrl.on('keyup blur', function () {
     urlHasBeenUpdated = true;
 });
 
-function validateUrl() {
-    if (urlHasBeenUpdated) {
-        $('#ufuCategoryForm').yiiActiveForm('validateAttribute', 'ufucategory-url');
+function customValidation() {
+    ufuCategoryForm.yiiActiveForm('validateAttribute', 'ufucategory-ctree_error');
+    if (urlHasBeenUpdated || ufuCategoryUrl.val().length) {
+        ufuCategoryForm.yiiActiveForm('validateAttribute', 'ufucategory-url');
     }
 }
 JS
