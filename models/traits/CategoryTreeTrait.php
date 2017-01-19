@@ -38,10 +38,11 @@ trait CategoryTreeTrait
 
     /**
      * @param bool $flat
+     * @param int  $parent_id
      *
      * @return array|null
      */
-    public static function collectItemsIdTree($flat = FALSE)
+    public static function collectItemsIdTree($flat = FALSE, $parent_id = 0)
     {
         if (self::$_cachedItemsTree === NULL || self::$_cachedItemsTreeFlat === NULL) {
             $preparedData = ArrayHelper::map(
@@ -65,7 +66,7 @@ trait CategoryTreeTrait
                 },
                 'parent_id'
             );
-            self::$_cachedItemsTree = self::_collectItemsRecursive($preparedData, self::$_cachedItemsTreeFlat);
+            self::$_cachedItemsTree = self::_collectItemsRecursive($preparedData, self::$_cachedItemsTreeFlat, $parent_id);
             unset($preparedData);
         }
 
