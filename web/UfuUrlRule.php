@@ -27,6 +27,7 @@ class UfuUrlRule extends Object implements UrlRuleInterface
      */
     public function createUrl($manager, $route, $params)
     {
+        // TODO: add caching
         if (isset($params['id'])) {
             $model = NULL;
             $urlTypes = Yii::$app->ufu->getTypesList('categoryRoute');
