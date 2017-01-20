@@ -278,6 +278,7 @@ abstract class UfuActiveRecord extends ActiveRecord
      */
     public function getWebUrl()
     {
-        return Url::to("@web/" . Yii::$app->lang->getDDLang() . "/{$this->ufuUrl->full_path}" . Yii::$app->urlManager->suffix);
+        return Url::to("@weblang/{$this->ufuUrl->full_path}" . Yii::$app->urlManager->suffix);
     }
+
 }
