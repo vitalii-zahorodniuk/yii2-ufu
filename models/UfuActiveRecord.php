@@ -2,6 +2,7 @@
 namespace xz1mefx\ufu\models;
 
 use xz1mefx\base\db\ActiveRecord;
+use xz1mefx\base\helpers\Url;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
@@ -15,6 +16,7 @@ use yii\helpers\ArrayHelper;
  * @property string                $url
  * @property string                $fullPath
  * @property string                $fullPathHash
+ * @property string                $webUrl
  *
  * @property string                $typeName
  * @property array                 $categories
@@ -271,4 +273,11 @@ abstract class UfuActiveRecord extends ActiveRecord
         $this->_categories = is_array($value) ? $value : [$value];
     }
 
+    /**
+     * @return string
+     */
+    public function getWebUrl()
+    {
+        return Url::to("@web/" . Yii::$app->lang->getDDLang() . "/{$this->ufuUrl->full_path}" . Yii::$app->urlManager->suffix);
+    }
 }
