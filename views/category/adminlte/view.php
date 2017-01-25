@@ -21,6 +21,8 @@ $this->params['title'] = $this->title;
     <div class="box-header">
         <?php if ($canUpdate): ?>
             <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?php else: ?>
+            &nbsp;
         <?php endif; ?>
         <?php if ($canDelete && $model->canDelete): ?>
             <?= Html::a(Yii::t('ufu-tools', 'Delete'), ['delete', 'id' => $model->id], [
