@@ -48,6 +48,7 @@ $this->params['title'] = $this->title;
         <?php endif; ?>
         <div class="box-body-overflow">
             <?= DetailView::widget([
+                'options' => ['class' => 'table table-striped table-bordered table-hover'],
                 'model' => $model,
                 'attributes' => [
                     'id',

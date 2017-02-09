@@ -42,6 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php endif; ?>
 
     <?= DetailView::widget([
+        'options' => ['class' => 'table table-striped table-bordered table-hover'],
         'model' => $model,
         'attributes' => [
             'id',
